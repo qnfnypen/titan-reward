@@ -1,0 +1,1 @@
+FindOneBy{{.upperField}}(ctx context.Context,session sqlx.Session, {{.in}}) (*{{.upperStartCamelObject}}, error)

@@ -1,0 +1,505 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "",
+    "description": "titan奖励中心模块api文件",
+    "version": ""
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/reward/login": {
+      "post": {
+        "summary": "用户登陆",
+        "operationId": "userLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/LoginResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginReq"
+            }
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/reward/user/bind_keplr": {
+      "post": {
+        "summary": "绑定keplr",
+        "operationId": "bindKeplr",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BindKeplrReq"
+            }
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/reward/user/detail": {
+      "get": {
+        "summary": "获取用户的奖励详情",
+        "operationId": "rewardDetail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/RewardDetail"
+            }
+          }
+        },
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/reward/user/info": {
+      "get": {
+        "summary": "获取用户信息详情",
+        "operationId": "Info",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/RewardInfo"
+            }
+          }
+        },
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/reward/user/login_out": {
+      "put": {
+        "summary": "用户登出",
+        "operationId": "Loginout",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/reward/verify_code": {
+      "get": {
+        "summary": "获取邮箱验证码/钱包的随机码",
+        "operationId": "getVerifyCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/VerifyCodeResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "auth"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "BindKeplrReq": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "sign": {
+          "type": "string"
+        }
+      },
+      "title": "BindKeplrReq",
+      "required": [
+        "address",
+        "sign"
+      ]
+    },
+    "ClosedInfo": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number",
+          "format": "double",
+          "description": " 全部收益"
+        },
+        "reward": {
+          "type": "number",
+          "format": "double",
+          "description": " 节点收益"
+        },
+        "ttnt": {
+          "type": "number",
+          "format": "double"
+        },
+        "ratio": {
+          "type": "number",
+          "format": "double",
+          "description": " 多少reward可以换1个ttnt"
+        }
+      },
+      "title": "ClosedInfo",
+      "required": [
+        "total",
+        "reward",
+        "ttnt",
+        "ratio"
+      ]
+    },
+    "CommonInfo": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number",
+          "format": "double",
+          "description": " 全部收益"
+        },
+        "reward": {
+          "type": "number",
+          "format": "double",
+          "description": " 节点收益/任务收益"
+        },
+        "referralReward": {
+          "type": "number",
+          "format": "double",
+          "description": " 邀请好友收益"
+        },
+        "ttnt": {
+          "type": "number",
+          "format": "double"
+        },
+        "ratio": {
+          "type": "number",
+          "format": "double",
+          "description": " 多少reward可以换1个ttnt"
+        }
+      },
+      "title": "CommonInfo",
+      "required": [
+        "total",
+        "reward",
+        "referralReward",
+        "ttnt",
+        "ratio"
+      ]
+    },
+    "GetVerifyCodeReq": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        }
+      },
+      "title": "GetVerifyCodeReq",
+      "required": [
+        "username"
+      ]
+    },
+    "HerschelInfo": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number",
+          "format": "double",
+          "description": " 全部收益"
+        },
+        "reward": {
+          "type": "number",
+          "format": "double",
+          "description": " 节点收益"
+        },
+        "referralReward": {
+          "type": "number",
+          "format": "double",
+          "description": " 邀请好友收益"
+        },
+        "kolReferralReward": {
+          "type": "number",
+          "format": "double",
+          "description": " KOL邀请好友收益"
+        },
+        "ttnt": {
+          "type": "number",
+          "format": "double"
+        },
+        "ratio": {
+          "type": "number",
+          "format": "double",
+          "description": " 多少reward可以换1个ttnt"
+        }
+      },
+      "title": "HerschelInfo",
+      "required": [
+        "total",
+        "reward",
+        "referralReward",
+        "kolReferralReward",
+        "ttnt",
+        "ratio"
+      ]
+    },
+    "LoginReq": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": " 邮箱或钱包地址"
+        },
+        "sign": {
+          "type": "string",
+          "description": " 钱包签名"
+        },
+        "verifyCode": {
+          "type": "string",
+          "description": " 邮箱验证码"
+        }
+      },
+      "title": "LoginReq",
+      "required": [
+        "username"
+      ]
+    },
+    "LoginResp": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      },
+      "title": "LoginResp",
+      "required": [
+        "token"
+      ]
+    },
+    "RewardDetail": {
+      "type": "object",
+      "properties": {
+        "closed": {
+          "$ref": "#/definitions/ClosedInfo",
+          "description": " 封测奖励"
+        },
+        "huygens": {
+          "$ref": "#/definitions/CommonInfo",
+          "description": " 惠更斯测试网"
+        },
+        "herschel": {
+          "$ref": "#/definitions/HerschelInfo",
+          "description": " 郝歇尔测试网"
+        },
+        "airdrop": {
+          "$ref": "#/definitions/CommonInfo",
+          "description": " 社区活动"
+        }
+      },
+      "title": "RewardDetail",
+      "required": [
+        "closed",
+        "huygens",
+        "herschel",
+        "airdrop"
+      ]
+    },
+    "RewardInfo": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "$ref": "#/definitions/TTNTInfo",
+          "description": " 邮箱的奖励信息"
+        },
+        "wallet": {
+          "$ref": "#/definitions/TTNTInfo",
+          "description": " 钱包地址的奖励信息"
+        },
+        "user": {
+          "$ref": "#/definitions/UserInfo",
+          "description": " 我的信息"
+        },
+        "reward": {
+          "$ref": "#/definitions/RewardSum",
+          "description": " 累计奖励"
+        },
+        "status": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 提现状态 0-提现中 1-已到账"
+        }
+      },
+      "title": "RewardInfo",
+      "required": [
+        "email",
+        "wallet",
+        "user",
+        "reward",
+        "status"
+      ]
+    },
+    "RewardMap": {
+      "type": "object",
+      "properties": {
+        "reward": {
+          "type": "number",
+          "format": "double"
+        },
+        "ttnt": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "RewardMap",
+      "required": [
+        "reward",
+        "ttnt"
+      ]
+    },
+    "RewardSum": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number",
+          "format": "double"
+        },
+        "tnt1": {
+          "$ref": "#/definitions/RewardMap"
+        },
+        "tnt2": {
+          "$ref": "#/definitions/RewardMap"
+        },
+        "tcp": {
+          "$ref": "#/definitions/RewardMap"
+        }
+      },
+      "title": "RewardSum",
+      "required": [
+        "total",
+        "tnt1",
+        "tnt2",
+        "tcp"
+      ]
+    },
+    "TTNTInfo": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "value": {
+          "type": "number",
+          "format": "double"
+        }
+      },
+      "title": "TTNTInfo",
+      "required": [
+        "address",
+        "value"
+      ]
+    },
+    "UserInfo": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "eth": {
+          "type": "string"
+        },
+        "titan": {
+          "type": "string"
+        }
+      },
+      "title": "UserInfo",
+      "required": [
+        "email",
+        "eth",
+        "titan"
+      ]
+    },
+    "VerifyCodeResp": {
+      "type": "object",
+      "properties": {
+        "verifyCode": {
+          "type": "string"
+        }
+      },
+      "title": "VerifyCodeResp",
+      "required": [
+        "verifyCode"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Enter JWT Bearer token **_only_**",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}

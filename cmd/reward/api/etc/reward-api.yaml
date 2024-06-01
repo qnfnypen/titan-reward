@@ -1,0 +1,38 @@
+Name: reward-api
+Host: 0.0.0.0
+Port: 8888
+Location: Asia/Shanghai
+
+Log:
+  Mode: file
+  Path: logs/api
+  TimeFormat: "2006-01-02 15:04:05"
+  KeepDays: 30
+
+Mysql:
+  DataSource: root:123456@tcp(127.0.0.1:3306)/titan_reward?charset=utf8mb4&parseTime=true&loc=Local
+  ExplorerDS: root:123456@tcp(127.0.0.1:3306)/titan_reward?charset=utf8mb4&parseTime=true&loc=Local
+  QuestDS: root:123456@tcp(127.0.0.1:3306)/titan_reward?charset=utf8mb4&parseTime=true&loc=Local
+  CacheRedis:
+    - Host: 127.0.0.1:6379
+      Type: node
+
+Redis:
+  Host: 127.0.0.1:6379
+  Pass: "123456"
+
+Email:
+  SMTPHost: 
+  SMTPPort: 
+  Username: 
+  Password: 
+
+TTNTRatio:
+  TNT1: 500
+  TNT2: 500
+  TCP: 500
+
+Auth:
+  AccessSecret: 
+  # 使用 time.ParseDuration 的格式 h,m,s，如果格式设置错误，则使用默认的24h
+  AccessExpire: 48h
