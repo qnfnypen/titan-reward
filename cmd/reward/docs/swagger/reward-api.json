@@ -389,7 +389,7 @@
         "status": {
           "type": "integer",
           "format": "int64",
-          "description": " 提现状态 0-提现中 1-已到账"
+          "description": " 提现状态 0-未提现 1-提现中 2-已提现"
         }
       },
       "title": "RewardInfo",

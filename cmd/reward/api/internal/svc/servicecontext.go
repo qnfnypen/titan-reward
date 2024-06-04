@@ -3,6 +3,7 @@ package svc
 import (
 	"time"
 
+	"github.com/jinzhu/copier"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/config"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/middleware"
 	"github.com/zeromicro/go-zero/core/stores/redis"
@@ -10,6 +11,7 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 
 	"github.com/qnfnypen/titan-reward/cmd/reward/model"
+	"github.com/qnfnypen/titan-reward/common/opchain"
 	"github.com/qnfnypen/titan-reward/common/opemail"
 )
 
@@ -28,6 +30,7 @@ type ServiceContext struct {
 
 	RedisCli *redis.Redis
 	EmailCli opemail.Client
+	TitanCli *opchain.TitanClient
 }
 
 // NewServiceContext 新建服务上下文
@@ -42,6 +45,17 @@ func NewServiceContext(c config.Config) *ServiceContext {
 
 	rcli := redis.New(c.Redis.Host, redis.WithPass(c.Redis.Pass))
 
+	// 初始化 titan client
+	tcliConf := new(opchain.TitanClientConf)
+	err := copier.Copy(tcliConf, &(c.TitanClientConf))
+	if err != nil {
+		panic("copy config of titan's client error")
+	}
+	tcli, err := opchain.CreateTitanClient(tcliConf)
+	if err != nil {
+		panic(err)
+	}
+
 	return &ServiceContext{
 		Config:                c,
 		UserModel:             model.NewUserModel(conn, c.Mysql.CacheRedis),
@@ -52,5 +66,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AuthMiddleware:        middleware.NewAuthMiddleware(rcli).Handle,
 		RedisCli:              rcli,
 		EmailCli:              opemail.NewEmailConfig(c.Email.SMTPHost, c.Email.Username, c.Email.Password, c.Email.SMTPPort),
+		TitanCli:              tcli,
 	}
 }

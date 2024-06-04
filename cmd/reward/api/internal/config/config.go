@@ -36,6 +36,16 @@ type Config struct {
 		TCP  float64
 	}
 
+	TitanClientConf struct {
+		NodeAddress        string
+		AddressPrefix      string
+		KeyringServiceName string
+		GasPrices          string
+		AccountName        string
+		KeyDirectory       string
+		Denomination       string
+	}
+
 	Auth struct {
 		AccessSecret string
 		AccessExpire string `json:",default='24h'"`

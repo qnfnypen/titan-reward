@@ -8,6 +8,7 @@ import (
 	"github.com/qnfnypen/gzocomm/merror"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/svc"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/types"
+	"github.com/qnfnypen/titan-reward/cmd/reward/model"
 	"github.com/qnfnypen/titan-reward/common/myerror"
 	"github.com/shopspring/decimal"
 
@@ -100,5 +101,34 @@ func (l *InfoLogic) Info() (resp *types.RewardInfo, err error) {
 		},
 	}
 
+	// 判断提现状态，未提现则进行提现
+	if resp.Status == 0 {
+		go l.withdraw(info.User, resp.Reward.Total)
+	}
+
 	return resp, nil
+}
+
+func (l *InfoLogic) withdraw(user *model.User, coinNum float64) {
+	ctx := context.Background()
+	coin := decimal.NewFromFloat(coinNum).String()
+
+	// 更新数据库
+	user.Status = 1
+	err := l.svcCtx.UserModel.Update(ctx, nil, user)
+	if err != nil {
+		logx.Error(err)
+		return
+	}
+	err = l.svcCtx.TitanCli.SendCoin(ctx, user.Address, coin)
+	if err != nil {
+		logx.Error(err)
+		user.Status = 0
+		l.svcCtx.UserModel.Update(ctx, nil, user)
+		return
+	}
+
+	// 成功则更新数据库
+	user.Status = 2
+	l.svcCtx.UserModel.Update(ctx, nil, user)
 }

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `address` varchar(255) NOT NULL DEFAULT '' COMMENT 'titan的钱包地址',
     `created_at` int(10) NOT NULL DEFAULT '0' COMMENT '创建时间',
     `deleted_at` int(10) NOT NULL DEFAULT '0' COMMENT '删除时间',
-    `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '提现状态:0-提现中 1-已到账',
+    `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '提现状态:0-未提现 1-提现中 2-已提现',
     PRIMARY KEY(`id`),
     UNIQUE KEY `uq_uuid` (`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';

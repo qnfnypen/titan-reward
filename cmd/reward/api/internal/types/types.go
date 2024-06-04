@@ -56,7 +56,7 @@ type RewardInfo struct {
 	Wallet TTNTInfo  `json:"wallet"` // 钱包地址的奖励信息
 	User   UserInfo  `json:"user"`   // 我的信息
 	Reward RewardSum `json:"reward"` // 累计奖励
-	Status int64     `json:"status"` // 提现状态 0-提现中 1-已到账
+	Status int64     `json:"status"` // 提现状态 0-未提现 1-提现中 2-已提现
 }
 
 type RewardMap struct {

@@ -32,6 +32,15 @@ TTNTRatio:
   TNT2: 500
   TCP: 500
 
+TitanClientConf:
+  NodeAddress: https://rpc.titannet.io
+  AddressPrefix: titan
+  KeyringServiceName: titan
+  GasPrices: 0.0025uttnt
+  AccountName: mofa
+  KeyDirectory: /Users/hanchan/.titan
+  Denomination: uttnt
+
 Auth:
   AccessSecret: 
   # 使用 time.ParseDuration 的格式 h,m,s，如果格式设置错误，则使用默认的24h

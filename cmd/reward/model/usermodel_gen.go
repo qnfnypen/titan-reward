@@ -49,7 +49,7 @@ type (
 		Address    string `db:"address"`     // titan的钱包地址
 		CreatedAt  int64  `db:"created_at"`  // 创建时间
 		DeletedAt  int64  `db:"deleted_at"`  // 删除时间
-		Status     int64  `db:"status"`      // 提现状态:0-提现中 1-已到账
+		Status     int64  `db:"status"`      // 提现状态:0-未提现 1-提现中 2-已提现
 	}
 )
 
