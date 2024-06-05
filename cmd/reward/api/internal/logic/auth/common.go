@@ -82,17 +82,20 @@ func checkUsername(un string) unKind {
 		bitcoinRegexPattern     = `^(1|3)[a-km-zA-HJ-NP-Z1-9]{25,34}$`
 		ethereumRegexPattern    = `^0x[a-fA-F0-9]{40}$`
 		bitcoinCashRegexPattern = `^(bitcoincash:)?(q|p)[a-z0-9]{41}$`
+		titanRegexPattern       = `^titan[a-zA-Z0-9]{39}$`
+		// titan128pqwynnyu66ujkjsepv08s5adaqym8k5p6um7
 	)
 
 	emailRegex := regexp.MustCompile(emailRegexPattern)
 	bitcoinRegex := regexp.MustCompile(bitcoinRegexPattern)
 	ethereumRegex := regexp.MustCompile(ethereumRegexPattern)
 	bitcoinCashRegex := regexp.MustCompile(bitcoinCashRegexPattern)
+	titanRegex := regexp.MustCompile(titanRegexPattern)
 
 	switch {
 	case emailRegex.MatchString(un):
 		return emailKind
-	case ethereumRegex.MatchString(un) || bitcoinRegex.MatchString(un) || bitcoinCashRegex.MatchString(un):
+	case ethereumRegex.MatchString(un) || titanRegex.MatchString(un) || bitcoinRegex.MatchString(un) || bitcoinCashRegex.MatchString(un):
 		return addrKind
 	default:
 		return errKind

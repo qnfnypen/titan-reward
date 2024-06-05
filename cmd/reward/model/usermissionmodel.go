@@ -39,7 +39,7 @@ func (m *customUserMissionModel) withSession(session sqlx.Session) UserMissionMo
 func (m *customUserMissionModel) GetCreditByUn(ctx context.Context, un string) (int64, error) {
 	var credit int64
 
-	query, args, err := squirrel.Select("SUM(credit)").From(m.table).Where("username = ?", un).ToSql()
+	query, args, err := squirrel.Select("IFNULL(SUM(credit),0)").From(m.table).Where("username = ?", un).ToSql()
 	if err != nil {
 		return credit, fmt.Errorf("get sum of credit error:%w", err)
 	}
@@ -56,7 +56,7 @@ func (m *customUserMissionModel) GetCreditByUn(ctx context.Context, un string) (
 func (m *customUserMissionModel) GetInviteCreditByUn(ctx context.Context, un string) (int64, error) {
 	var credit int64
 
-	query, args, err := squirrel.Select("SUM(credit)").From(m.table).Where("username = ?", un).ToSql()
+	query, args, err := squirrel.Select("IFNULL(SUM(credit),0)").From(m.table).Where("username = ?", un).ToSql()
 	if err != nil {
 		return credit, fmt.Errorf("get sum of credit error:%w", err)
 	}

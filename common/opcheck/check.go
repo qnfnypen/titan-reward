@@ -1,13 +1,16 @@
 package opcheck
 
 import (
+	"encoding/hex"
+	"fmt"
 	"strconv"
 
+	secp256k1 "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-// VerifyAddrSign 判断地址的签名是否正确
+// VerifyAddrSign 判断以太坊地址的签名是否正确
 func VerifyAddrSign(nonce, sign string) (string, error) {
 	// Hash the unsigned message using EIP-191
 	hashedMessage := []byte("\x19Ethereum Signed Message:\n" + strconv.Itoa(len(nonce)) + nonce)
@@ -25,4 +28,15 @@ func VerifyAddrSign(nonce, sign string) (string, error) {
 	}
 
 	return crypto.PubkeyToAddress(*sigPublicKeyECDSA).String(), nil
+}
+
+// VerifyComosSign 验证 comos 链的签名
+func VerifyComosSign(nonce, sign, pk string) (bool, error) {
+	bs, err := hex.DecodeString(pk)
+	if err != nil {
+		return false, fmt.Errorf("decode public key from pk error:%w", err)
+	}
+
+	pubkey := &secp256k1.PubKey{Key: bs}
+	return VerifySignature(nonce, sign, pubkey)
 }

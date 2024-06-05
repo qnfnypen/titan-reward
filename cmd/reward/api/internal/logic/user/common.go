@@ -24,16 +24,17 @@ type sctx svc.ServiceContext
 
 // GetRewardByUid 根据用户id获取其对应的收益信息
 func (s *sctx) GetRewardByUID(ctx context.Context, uid int64) (*RewardInfo, error) {
+	var err error
 	resp := new(RewardInfo)
 
 	// 获取用户信息
-	user, err := s.UserModel.FindOne(ctx, nil, uid)
+	resp.User, err = s.UserModel.FindOne(ctx, nil, uid)
 	if err != nil {
 		return nil, fmt.Errorf("get user's info error:%w", err)
 	}
 
 	// 获取tiantan-explorer的用户信息
-	resp.ExplorerEmailUser, err = s.ExplorerUserModel.FindOneByUsername(ctx, user.Email)
+	resp.ExplorerEmailUser, err = s.ExplorerUserModel.FindOneByUsername(ctx, resp.User.Email)
 	switch err {
 	case model.ErrNotFound:
 		resp.ExplorerEmailUser = new(model.Users)
@@ -41,7 +42,7 @@ func (s *sctx) GetRewardByUID(ctx context.Context, uid int64) (*RewardInfo, erro
 	default:
 		return nil, fmt.Errorf("get titan-explorer user's info by email error:%w", err)
 	}
-	resp.ExplorerWalletUser, err = s.ExplorerUserModel.FindOneByUsername(ctx, user.WalletAddr)
+	resp.ExplorerWalletUser, err = s.ExplorerUserModel.FindOneByUsername(ctx, resp.User.WalletAddr)
 	switch err {
 	case model.ErrNotFound:
 		resp.ExplorerEmailUser = new(model.Users)
@@ -51,19 +52,19 @@ func (s *sctx) GetRewardByUID(ctx context.Context, uid int64) (*RewardInfo, erro
 	}
 
 	// 获取titan-quest的用户信息
-	resp.QuestEmailReward, err = s.QuestUserMissionModel.GetCreditByUn(ctx, user.Email)
+	resp.QuestEmailReward, err = s.QuestUserMissionModel.GetCreditByUn(ctx, resp.User.Email)
 	if err != nil {
 		return nil, fmt.Errorf("get titan-quest user's mission by email error:%w", err)
 	}
-	resp.QuestEmailReferralReward, err = s.QuestInviteLogModel.GetInviteCreditByUn(ctx, user.Email)
+	resp.QuestEmailReferralReward, err = s.QuestInviteLogModel.GetInviteCreditByUn(ctx, resp.User.Email)
 	if err != nil {
 		return nil, fmt.Errorf("get titan-quest user's invitelog by email error:%w", err)
 	}
-	resp.QuestWalletReward, err = s.QuestUserMissionModel.GetCreditByUn(ctx, user.WalletAddr)
+	resp.QuestWalletReward, err = s.QuestUserMissionModel.GetCreditByUn(ctx, resp.User.WalletAddr)
 	if err != nil {
 		return nil, fmt.Errorf("get titan-quest user's mission by wallet error:%w", err)
 	}
-	resp.QuestWalletReferralReward, err = s.QuestInviteLogModel.GetInviteCreditByUn(ctx, user.WalletAddr)
+	resp.QuestWalletReferralReward, err = s.QuestInviteLogModel.GetInviteCreditByUn(ctx, resp.User.WalletAddr)
 	if err != nil {
 		return nil, fmt.Errorf("get titan-quest user's invitelog by wallet error:%w", err)
 	}

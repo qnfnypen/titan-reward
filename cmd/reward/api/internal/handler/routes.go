@@ -61,6 +61,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/login_out",
 					Handler: user.LoginoutHandler(serverCtx),
 				},
+				{
+					// 关联用户的小狐狸钱包和邮箱地址
+					Method:  http.MethodPut,
+					Path:    "/related_login",
+					Handler: user.RelatedLoginHandler(serverCtx),
+				},
 			}...,
 		),
 		rest.WithJwt(serverCtx.Config.Auth.AccessSecret),

@@ -137,6 +137,36 @@
         ]
       }
     },
+    "/api/reward/user/related_login": {
+      "put": {
+        "summary": "关联用户的小狐狸钱包和邮箱地址",
+        "operationId": "relatedLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginReq"
+            }
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
     "/api/reward/verify_code": {
       "get": {
         "summary": "获取邮箱验证码/钱包的随机码",
@@ -175,12 +205,16 @@
         },
         "sign": {
           "type": "string"
+        },
+        "publicKey": {
+          "type": "string"
         }
       },
       "title": "BindKeplrReq",
       "required": [
         "address",
-        "sign"
+        "sign",
+        "publicKey"
       ]
     },
     "ClosedInfo": {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/qnfnypen/gzocomm/merror"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/svc"
@@ -45,12 +44,12 @@ func (l *BindKeplrLogic) BindKeplr(req *types.BindKeplrReq) error {
 		gzErr.LogErr = merror.NewError(fmt.Errorf("get %s's nonce from redis error:%w", req.Address, err)).Error()
 		return gzErr
 	}
-	recoverAddress, err := opcheck.VerifyAddrSign(nonce, req.Sign)
+	match, err := opcheck.VerifyComosSign(fmt.Sprintf("TitanNetWork(%s)", nonce), req.Sign, req.PublicKey)
 	if err != nil {
 		gzErr.LogErr = merror.NewError(fmt.Errorf("verify sign of address error:%w", err)).Error()
 		return gzErr
 	}
-	if !strings.EqualFold(recoverAddress, req.Address) {
+	if !match {
 		gzErr.RespErr = myerror.GetMsg(myerror.AddrSignOrCodeErrCode, lan)
 		return gzErr
 	}

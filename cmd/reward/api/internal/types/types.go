@@ -2,8 +2,9 @@
 package types
 
 type BindKeplrReq struct {
-	Address string `json:"address"`
-	Sign    string `json:"sign"`
+	Address   string `json:"address"`
+	Sign      string `json:"sign"`
+	PublicKey string `json:"publicKey"`
 }
 
 type ClosedInfo struct {

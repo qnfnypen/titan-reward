@@ -102,7 +102,7 @@ func (l *InfoLogic) Info() (resp *types.RewardInfo, err error) {
 	}
 
 	// 判断提现状态，未提现则进行提现
-	if resp.Status == 0 {
+	if resp.Status == 0 && decimal.NewFromFloat(resp.Reward.Total).GreaterThan(decimal.NewFromFloat(0)) {
 		go l.withdraw(info.User, resp.Reward.Total)
 	}
 

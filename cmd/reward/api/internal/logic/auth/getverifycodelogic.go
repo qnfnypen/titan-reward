@@ -65,11 +65,12 @@ func (l *GetVerifyCodeLogic) GetVerifyCode(req *types.GetVerifyCodeReq) (resp *t
 	switch checkUsername(req.Username) {
 	case emailKind:
 		go l.sendCodeEmail(nonce, lan, req.Username)
-		resp.VerifyCode = nonce
+		// resp.VerifyCode = nonce
 	case addrKind:
 		resp.VerifyCode = fmt.Sprintf("TitanNetWork(%s)", nonce)
 	default:
 		gzErr.RespErr = myerror.GetMsg(myerror.UsernameErrCode, lan)
+		return nil, gzErr
 	}
 
 	return resp, nil

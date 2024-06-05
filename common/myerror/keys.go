@@ -22,4 +22,8 @@ const (
 	GetUserInfoErrCode
 	// GetRewardDetailErrCode 获取奖励详情错误
 	GetRewardDetailErrCode
+	// RelatedErrCode 绑定邮箱或钱包错误
+	RelatedErrCode
+	// MulRelatedErrCode 重复绑定绑定邮箱或钱包错误
+	MulRelatedErrCode
 )

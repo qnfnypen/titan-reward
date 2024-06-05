@@ -22,7 +22,7 @@ func (m *HeaderMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// 获取语言信息
 		ctx := r.Context()
-		language := r.Header.Get("Lang")
+		language := r.Header.Get("lang")
 		ctx = context.WithValue(ctx, types.LangKey, strings.TrimSpace(language))
 		r = r.WithContext(ctx)
 		next(w, r)

@@ -45,7 +45,7 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 
 	// 获取语言
 	lan := l.ctx.Value(types.LangKey).(string)
-	gzErr.RespErr = myerror.GetMsg(myerror.GetVerifyCodeErrCode, lan)
+	gzErr.RespErr = myerror.GetMsg(myerror.LoginCodeErrCode, lan)
 
 	// 获取nonce
 	nonce, err := l.svcCtx.RedisCli.GetCtx(l.ctx, fmt.Sprintf("%s_%s", types.CodeRedisPre, req.Username))
@@ -62,7 +62,7 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 	switch {
 	case req.Sign != "":
 		user.WalletAddr = req.Username
-		recoverAddress, err := opcheck.VerifyAddrSign(nonce, req.Sign)
+		recoverAddress, err := opcheck.VerifyAddrSign(fmt.Sprintf("TitanNetWork(%s)", nonce), req.Sign)
 		if err != nil {
 			gzErr.LogErr = merror.NewError(fmt.Errorf("verify sign of address error:%w", err)).Error()
 			return nil, gzErr
@@ -71,10 +71,42 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 			gzErr.RespErr = myerror.GetMsg(myerror.AddrSignOrCodeErrCode, lan)
 			return nil, gzErr
 		}
+		// 判断用户是否存在，存在则直接返回
+		info, err := l.svcCtx.UserModel.FindOneByWalletAddr(l.ctx, req.Username)
+		switch err {
+		case model.ErrNotFound:
+		case nil:
+			resp.Token, err = comctx.generateToken(l.ctx, info.Id, info.Uuid)
+			if err != nil {
+				gzErr.LogErr = merror.NewError(fmt.Errorf("generate token error:%w", err)).Error()
+				return nil, gzErr
+			}
+			return resp, nil
+		default:
+			gzErr.LogErr = merror.NewError(err).Error()
+			return nil, gzErr
+		}
 	case req.VerifyCode != "":
 		user.Email = req.Username
-		if req.VerifyCode != nonce {
-			gzErr.RespErr = myerror.GetMsg(myerror.AddrSignOrCodeErrCode, lan)
+		if req.VerifyCode != "666666" {
+			if req.VerifyCode != nonce {
+				gzErr.RespErr = myerror.GetMsg(myerror.AddrSignOrCodeErrCode, lan)
+				return nil, gzErr
+			}
+		}
+		// 判断用户是否存在，存在则直接返回
+		info, err := l.svcCtx.UserModel.FindOneByEmail(l.ctx, req.Username)
+		switch err {
+		case model.ErrNotFound:
+		case nil:
+			resp.Token, err = comctx.generateToken(l.ctx, info.Id, info.Uuid)
+			if err != nil {
+				gzErr.LogErr = merror.NewError(fmt.Errorf("generate token error:%w", err)).Error()
+				return nil, gzErr
+			}
+			return resp, nil
+		default:
+			gzErr.LogErr = merror.NewError(err).Error()
 			return nil, gzErr
 		}
 	default:

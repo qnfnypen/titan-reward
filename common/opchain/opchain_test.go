@@ -39,3 +39,14 @@ func TestGetBalance(t *testing.T) {
 
 	t.Log(balance)
 }
+
+func TestQueryValidators(t *testing.T) {
+	validators, err := titanCli.QueryValidators(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, v := range validators {
+		t.Log(v.OperatorAddress, v.Status, v.Commission)
+	}
+}

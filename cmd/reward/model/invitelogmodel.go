@@ -39,7 +39,7 @@ func (m *customInviteLogModel) withSession(session sqlx.Session) InviteLogModel 
 func (m *customInviteLogModel) GetInviteCreditByUn(ctx context.Context, un string) (int64, error) {
 	var credit int64
 
-	query, args, err := squirrel.Select("SUM(credit)").From(m.table).Where("username = ?", un).ToSql()
+	query, args, err := squirrel.Select("IFNULL(SUM(credit),0)").From(m.table).Where("username = ?", un).ToSql()
 	if err != nil {
 		return credit, fmt.Errorf("get sum of credit error:%w", err)
 	}

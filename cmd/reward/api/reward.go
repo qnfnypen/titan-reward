@@ -32,12 +32,10 @@ func main() {
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()
-
-	
 }
 
 func generateNoFoundHandler() rest.RunOption {
-	fp := "swagger.json"
+	fp := "docs/swagger/reward-api.json"
 	info := &mhandler.SwaggerInfo{BasePath: "//"}
 	url := "/swagger"
 	swagHandler, err := mhandler.SwaggerHandler(fp, url, info)

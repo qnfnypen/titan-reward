@@ -2,10 +2,12 @@ package model
 
 import (
 	"context"
+	"fmt"
+	"strings"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"strings"
 )
 
 var _ UserModel = (*customUserModel)(nil)
@@ -17,6 +19,8 @@ type (
 		userModel
 		Trans(ctx context.Context, fn func(ctx context.Context, session sqlx.Session) error) error
 		QueryBuilder(fields ...string) squirrel.SelectBuilder
+		FindOneByEmail(ctx context.Context, email string) (*User, error)
+		FindOneByWalletAddr(ctx context.Context, walletAddr string) (*User, error)
 	}
 
 	customUserModel struct {
@@ -47,4 +51,38 @@ func (m *customUserModel) QueryBuilder(fields ...string) squirrel.SelectBuilder 
 	}
 
 	return squirrel.Select(queryFields).From(m.table)
+}
+
+// FindOneByEmail 通过email获取用户信息
+func (m *customUserModel) FindOneByEmail(ctx context.Context, email string) (*User, error) {
+	var resp User
+
+	query, args, err := m.QueryBuilder().Where("email = ? limit 1", email).ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("get info by email error:%w", err)
+	}
+
+	err = m.QueryRowsNoCacheCtx(ctx, &resp, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("get info by email error:%w", err)
+	}
+
+	return &resp, nil
+}
+
+// FindOneByWalletAddr 通过小狐狸钱包地址获取用户信息
+func (m *customUserModel) FindOneByWalletAddr(ctx context.Context, walletAddr string) (*User, error) {
+	var resp User
+
+	query, args, err := m.QueryBuilder().Where("wallet_addr = ? limit 1", walletAddr).ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("get info by wallet_addr error:%w", err)
+	}
+
+	err = m.QueryRowsNoCacheCtx(ctx, &resp, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("get info by wallet_addr error:%w", err)
+	}
+
+	return &resp, nil
 }

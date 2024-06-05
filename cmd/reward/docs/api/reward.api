@@ -12,8 +12,9 @@ import (
 
 type (
 	BindKeplrReq {
-		Address string `json:"address"`
-		Sign    string `json:"sign"`
+		Address   string `json:"address"`
+		Sign      string `json:"sign"`
+		PublicKey string `json:"publicKey"`
 	}
 	TTNTInfo {
 		Address string  `json:"address"`
@@ -84,6 +85,10 @@ service reward-api {
 	@doc "绑定keplr"
 	@handler bindKeplr
 	post /bind_keplr (BindKeplrReq)
+
+	@doc "关联用户的小狐狸钱包和邮箱地址"
+	@handler relatedLogin
+	put /related_login (LoginReq)
 
 	@doc "获取用户信息详情"
 	@handler Info
