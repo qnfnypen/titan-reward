@@ -7,6 +7,7 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/cache"
+	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
@@ -59,15 +60,18 @@ func (m *customUserModel) FindOneByEmail(ctx context.Context, email string) (*Us
 
 	query, args, err := m.QueryBuilder().Where("email = ? limit 1", email).ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("get info by email error:%w", err)
+		return nil, fmt.Errorf("generate sql of get info by email error:%w", err)
 	}
 
-	err = m.QueryRowsNoCacheCtx(ctx, &resp, query, args...)
-	if err != nil {
+	err = m.QueryRowNoCacheCtx(ctx, &resp, query, args...)
+	switch err {
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	case nil:
+		return &resp, nil
+	default:
 		return nil, fmt.Errorf("get info by email error:%w", err)
 	}
-
-	return &resp, nil
 }
 
 // FindOneByWalletAddr 通过小狐狸钱包地址获取用户信息
@@ -76,13 +80,16 @@ func (m *customUserModel) FindOneByWalletAddr(ctx context.Context, walletAddr st
 
 	query, args, err := m.QueryBuilder().Where("wallet_addr = ? limit 1", walletAddr).ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("get info by wallet_addr error:%w", err)
+		return nil, fmt.Errorf("generate sql of get info by wallet_addr error:%w", err)
 	}
 
-	err = m.QueryRowsNoCacheCtx(ctx, &resp, query, args...)
-	if err != nil {
+	err = m.QueryRowNoCacheCtx(ctx, &resp, query, args...)
+	switch err {
+	case sqlc.ErrNotFound:
+		return nil, ErrNotFound
+	case nil:
+		return &resp, nil
+	default:
 		return nil, fmt.Errorf("get info by wallet_addr error:%w", err)
 	}
-
-	return &resp, nil
 }

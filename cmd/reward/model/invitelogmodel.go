@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
@@ -45,9 +46,12 @@ func (m *customInviteLogModel) GetInviteCreditByUn(ctx context.Context, un strin
 	}
 
 	err = m.conn.QueryRowCtx(ctx, &credit, query, args...)
-	if err != nil {
+	switch err {
+	case sqlc.ErrNotFound:
+		return 0, nil
+	case nil:
+		return credit, nil
+	default:
 		return 0, fmt.Errorf("get sum of credit error:%w", err)
 	}
-
-	return credit, nil
 }

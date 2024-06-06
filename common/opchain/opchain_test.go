@@ -32,6 +32,9 @@ func TestMain(m *testing.M) {
 func TestGetBalance(t *testing.T) {
 	addr := "titan128pqwynnyu66ujkjsepv08s5adaqym8k5p6um7"
 
+	t.Log(titanCli.account.Address(titanCli.addressPrefix))
+	t.Log(titanCli.account.PubKey())
+
 	balance, err := titanCli.GetBalance(context.Background(), addr)
 	if err != nil {
 		t.Fatal(err)

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/zeromicro/go-zero/core/stores/sqlc"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
@@ -45,11 +46,14 @@ func (m *customUserMissionModel) GetCreditByUn(ctx context.Context, un string) (
 	}
 
 	err = m.conn.QueryRowCtx(ctx, &credit, query, args...)
-	if err != nil {
+	switch err {
+	case sqlc.ErrNotFound:
+		return 0, nil
+	case nil:
+		return credit, nil
+	default:
 		return 0, fmt.Errorf("get sum of credit error:%w", err)
 	}
-
-	return credit, nil
 }
 
 // GetInviteCreditByUn 获取用户社区邀请好友的奖励
@@ -62,9 +66,12 @@ func (m *customUserMissionModel) GetInviteCreditByUn(ctx context.Context, un str
 	}
 
 	err = m.conn.QueryRowCtx(ctx, &credit, query, args...)
-	if err != nil {
+	switch err {
+	case sqlc.ErrNotFound:
+		return 0, nil
+	case nil:
+		return credit, nil
+	default:
 		return 0, fmt.Errorf("get sum of credit error:%w", err)
 	}
-
-	return credit, nil
 }

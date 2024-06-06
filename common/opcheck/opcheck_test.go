@@ -10,23 +10,19 @@ import (
 )
 
 func TestVerifyAddrSign(t *testing.T) {
-	nonce := "Hello, Cosmos!"
-	sign := "868177c2f4a206fea2cfa90ea94d2cc49a1b0cdf27d7a29a34ebbcc498568b8d585314f4b660bf954fb6d7a76a021c5cf9fa781d56895060ab8e01969394a942"
-	// key := "02C90E04DCFCA1A8B4A9CC40223F8015D9A4665409F33B84ACA8E48178044B47A9"
-	key := "034AFC08B13BF8CCB8681DF260CF8D12B05F15A5F7CAC30422C8E560A57E587D00"
+	// key := "02AE577C704CA710D2083AEB86ABB0C97840A9E276A6D3E026485D921BB62C2A6B"
+	key := "02880afd856ceaf0ea642fb34d8654652260dc40dc7bc38ac458b50ca0e59d495f"
 
-	bs, err := hex.DecodeString(key)
+	pr := "titan1jr4def3jn7a6x2kn7klt638w9xfuxuf8zjala7"
+
+	// titan1jr4def3jn7a6x2kn7klt638w9xfuxuf8zjala7
+
+	match, err := VerifyComosAddr(pr, key, "titan")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	pubkey := &secp256k1.PubKey{Key: bs}
-	b, err := VerifySignature(nonce, sign, pubkey)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	t.Log(b)
+	t.Log(match)
 }
 
 func TestComos(t *testing.T) {
@@ -59,6 +55,7 @@ func TestComos(t *testing.T) {
 
 	// 打印生成的公钥和地址
 	address := sdk.AccAddress(pubKey.Address())
+	t.Log(address)
 	t.Log(pubKey.String())
 	bs, _ := hex.DecodeString("034AFC08B13BF8CCB8681DF260CF8D12B05F15A5F7CAC30422C8E560A57E587D00")
 	t.Log(fmt.Sprintf("%x", bs))

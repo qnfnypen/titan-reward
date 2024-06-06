@@ -39,14 +39,20 @@ func (l *BindKeplrLogic) BindKeplr(req *types.BindKeplrReq) error {
 	gzErr.RespErr = myerror.GetMsg(myerror.BindKeplrErrCode, lan)
 
 	// 获取nonce并进行地址签名校验
-	nonce, err := l.svcCtx.RedisCli.GetCtx(l.ctx, fmt.Sprintf("%s_%s", types.CodeRedisPre, req.Address))
+	// nonce, err := l.svcCtx.RedisCli.GetCtx(l.ctx, fmt.Sprintf("%s_%s", types.CodeRedisPre, req.Address))
+	// if err != nil {
+	// 	gzErr.LogErr = merror.NewError(fmt.Errorf("get %s's nonce from redis error:%w", req.Address, err)).Error()
+	// 	return gzErr
+	// }
+	// match, err := opcheck.VerifyComosSign(fmt.Sprintf("TitanNetWork(%s)", nonce), req.Sign, req.PublicKey)
+	// if err != nil {
+	// 	gzErr.LogErr = merror.NewError(fmt.Errorf("verify sign of address error:%w", err)).Error()
+	// 	return gzErr
+	// }
+	// 使用公钥验证 address
+	match, err := opcheck.VerifyComosAddr(req.Address, req.PublicKey, l.svcCtx.Config.TitanClientConf.AddressPrefix)
 	if err != nil {
-		gzErr.LogErr = merror.NewError(fmt.Errorf("get %s's nonce from redis error:%w", req.Address, err)).Error()
-		return gzErr
-	}
-	match, err := opcheck.VerifyComosSign(fmt.Sprintf("TitanNetWork(%s)", nonce), req.Sign, req.PublicKey)
-	if err != nil {
-		gzErr.LogErr = merror.NewError(fmt.Errorf("verify sign of address error:%w", err)).Error()
+		gzErr.LogErr = merror.NewError(fmt.Errorf("verify address error:%w", err)).Error()
 		return gzErr
 	}
 	if !match {

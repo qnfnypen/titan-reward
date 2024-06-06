@@ -4,8 +4,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"strconv"
+	"strings"
 
 	secp256k1 "github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -39,4 +41,20 @@ func VerifyComosSign(nonce, sign, pk string) (bool, error) {
 
 	pubkey := &secp256k1.PubKey{Key: bs}
 	return VerifySignature(nonce, sign, pubkey)
+}
+
+// VerifyComosAddr 验证 comos 链的地址是否正确
+func VerifyComosAddr(paddr, pk, pr string) (bool, error) {
+	bs, err := hex.DecodeString(pk)
+	if err != nil {
+		return false, fmt.Errorf("decode public key from pk error:%w", err)
+	}
+
+	pubkey := &secp256k1.PubKey{Key: bs}
+	addr, err := sdk.Bech32ifyAddressBytes(pr, pubkey.Address())
+	if err != nil {
+		return false, fmt.Errorf("get address error:%w", err)
+	}
+
+	return strings.EqualFold(paddr, addr), nil
 }
