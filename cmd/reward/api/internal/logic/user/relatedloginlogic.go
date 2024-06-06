@@ -57,6 +57,7 @@ func (l *RelatedLoginLogic) RelatedLogin(req *types.LoginReq) error {
 
 	switch {
 	case req.Sign != "":
+		// 绑定小狐狸钱包到邮箱
 		recoverAddress, err := opcheck.VerifyAddrSign(fmt.Sprintf("TitanNetWork(%s)", nonce), req.Sign)
 		if err != nil {
 			gzErr.LogErr = merror.NewError(fmt.Errorf("verify sign of address error:%w", err)).Error()
@@ -66,23 +67,24 @@ func (l *RelatedLoginLogic) RelatedLogin(req *types.LoginReq) error {
 			gzErr.RespErr = myerror.GetMsg(myerror.AddrSignOrCodeErrCode, lan)
 			return gzErr
 		}
-		if user.Email != "" {
+		if user.WalletAddr != "" {
 			gzErr.RespErr = myerror.GetMsg(myerror.MulRelatedErrCode, lan)
 			return gzErr
 		}
-		user.Email = req.Username
+		user.WalletAddr = req.Username
 	case req.VerifyCode != "":
+		// 绑定邮箱到小狐狸钱包
 		if req.VerifyCode != "666666" {
 			if req.VerifyCode != nonce {
 				gzErr.RespErr = myerror.GetMsg(myerror.AddrSignOrCodeErrCode, lan)
 				return gzErr
 			}
 		}
-		if user.WalletAddr != "" {
+		if user.Email != "" {
 			gzErr.RespErr = myerror.GetMsg(myerror.MulRelatedErrCode, lan)
 			return gzErr
 		}
-		user.WalletAddr = req.Username
+		user.Email = req.Username
 	default:
 		gzErr.LogErr = merror.NewError(err).Error()
 		return gzErr
