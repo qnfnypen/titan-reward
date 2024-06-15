@@ -28,9 +28,9 @@ type (
 service reward-api {
     @doc "用户登陆"
     @handler userLogin
-    post /login(LoginReq) returns(LoginResp)
+    post /login (LoginReq) returns (LoginResp)
 
     @doc "获取邮箱验证码/钱包的随机码"
     @handler getVerifyCode
-    get /verify_code(GetVerifyCodeReq) returns(VerifyCodeResp)
+    get /verify_code (GetVerifyCodeReq) returns (VerifyCodeResp)
 }

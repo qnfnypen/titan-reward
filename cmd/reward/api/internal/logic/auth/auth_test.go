@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/svc"
+	"github.com/qnfnypen/titan-reward/common/oputil"
 )
 
 var (
@@ -38,5 +39,5 @@ func TestCheckUsername(t *testing.T) {
 }
 
 func TestGenerateNonce(t *testing.T) {
-	t.Log(generateNonce(6))
+	t.Log(oputil.GenerateNonce(6))
 }

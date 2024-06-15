@@ -26,4 +26,21 @@ const (
 	RelatedErrCode
 	// MulRelatedErrCode 重复绑定绑定邮箱或钱包错误
 	MulRelatedErrCode
+	// BoundErrCode 邮箱或钱包已被绑定错误
+	BoundErrCode
+	// KeplrBoundErrCode keplr账户绑定后不能进行关联账户的绑定
+	KeplrBoundErrCode
+
+	// GetValitorErrCode 获取验证节点信息错误
+	GetValitorErrCode
+	// DelegateTokenErrCode 质押token错误
+	DelegateTokenErrCode
+	// UnDelegateTokenErrCode 解除质押错误
+	UnDelegateTokenErrCode
+	// ReDelegateTokenErrCode 质押转移错误
+	ReDelegateTokenErrCode
+	// CancelUnDelegateTokenErrCode 取消解除质押错误
+	CancelUnDelegateTokenErrCode
+	// WithdrawRewardsErrCode 提取收益错误
+	WithdrawRewardsErrCode
 )

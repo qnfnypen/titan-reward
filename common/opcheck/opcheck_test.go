@@ -11,9 +11,9 @@ import (
 
 func TestVerifyAddrSign(t *testing.T) {
 	// key := "02AE577C704CA710D2083AEB86ABB0C97840A9E276A6D3E026485D921BB62C2A6B"
-	key := "02880afd856ceaf0ea642fb34d8654652260dc40dc7bc38ac458b50ca0e59d495f"
+	key := "0385134dcf502df55620199fb1e4cda253e73e8e869396437d00158eb12505b98a"
 
-	pr := "titan1jr4def3jn7a6x2kn7klt638w9xfuxuf8zjala7"
+	pr := "titan185he9e38325regattm2lc7l2amflahmy67s8ew"
 
 	// titan1jr4def3jn7a6x2kn7klt638w9xfuxuf8zjala7
 

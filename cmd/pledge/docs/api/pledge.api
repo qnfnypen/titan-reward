@@ -1,0 +1,106 @@
+syntax = "v1"
+
+info (
+	author: "mofa"
+	date:   "2024-6-11"
+	desc:   "titan委托人质押交互"
+)
+
+import (
+	"auth.api"
+)
+
+type (
+	UserInfo {
+		AvailableToken float64 `json:"availableToken"` // 可用余额
+		StakedToken    float64 `json:"stakedToken"` // 质押数量
+		Reward         float64 `json:"reward"` // 质押收益
+		UnstakedToken  float64 `json:"unstakedToken"` // 锁仓质押
+	}
+	GetValidatorReq {
+		Kind int8   `form:"kind,options=[0,1],optional"` // 获取验证者节点信息 0-所有 1-质押
+		Page uint64 `form:"page,optional,default=1"`
+		Size uint64 `form:"size,optional,default=10"`
+	}
+	ValidatorInfo {
+		Image           string  `json:"image"` // 验证者头像
+		Name            string  `json:"name"` // 验证者名称
+		Validator       string  `json:"validator"` // 验证者
+		StakedTokens    float64 `json:"stakedTokens"` // 总质押量
+		Rate            float64 `json:"rate"` // 预期年利率
+		VotingPower     float64 `json:"votingPower"` // 投票权
+		UnbindingPeriod int64   `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
+		HandlingFees    float64 `json:"handlingFees"` // 质押手续费
+	}
+	Validators {
+		Total int64           `json:"total"`
+		List  []ValidatorInfo `json:"list"`
+	}
+	DelegateReq {
+		Validator string  `json:"validator"` // 验证者
+		Amount    float64 `json:"amount"` // 数量
+	}
+	ReDelegateReq {
+		SrcValidator string  `json:"scrValidator"` // 原验证者
+		DstValidator string  `json:"dstValidator"` // 目标验证者
+		Amount       float64 `json:"amount"` // 数量
+	}
+	CancelUnDelegateReq {
+		Validator string  `json:"validator"` // 验证者
+		Amount    float64 `json:"amount"` // 数量
+		Height    int64   `json:"height"` // 高度
+	}
+	UnbindingDelegateInfo {
+		Image           string  `json:"image"` // 验证者头像
+		Name            string  `json:"name"` // 验证者名称
+		Validator       string  `json:"validator"` // 验证者
+		Tokens          float64 `json:"tokens"` // 数量
+		UnbindingPeriod int64   `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
+		Height          int64   `json:"height"` // 高度
+	}
+)
+
+@server (
+	jwt:        Auth
+	group:      user
+	middleware: AuthMiddleware,HeaderMiddleware
+	prefix:     api/pledge/user
+)
+service pledge-api {
+	@doc "用户登出"
+	@handler Loginout
+	put /login_out
+
+	@doc "获取用户信息详情"
+	@handler Info
+	get /info returns (UserInfo)
+
+	@doc "获取验证者信息"
+	@handler Validators
+	get /validators (GetValidatorReq) returns (Validators)
+
+	@doc "质押token"
+	@handler Delegate
+	post /delegate (DelegateReq)
+
+	@doc "质押转移"
+	@handler ReDelegate
+	put /redelegate (ReDelegateReq)
+
+	@doc "解除质押"
+	@handler UnDelegate
+	put /undelegate (DelegateReq)
+
+	@doc "取消解除质押"
+	@handler CancelUnDelegate
+	put /undelegate/cancel (CancelUnDelegateReq)
+
+	@doc "获取进行中的解除质押"
+	@handler GetUnbindingDelegate
+	get /delegate/unbinding returns ([]UnbindingDelegateInfo)
+
+	@doc "提取收益"
+	@handler WithdrawRewards
+	post /rewards/withdraw
+}
+

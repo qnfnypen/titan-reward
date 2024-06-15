@@ -33,17 +33,25 @@ func VerifyAddrSign(nonce, sign string) (string, error) {
 }
 
 // VerifyComosSign 验证 comos 链的签名
-func VerifyComosSign(nonce, sign, pk string) (bool, error) {
+func VerifyComosSign(addr, nonce, sign, pk string) (bool, error) {
+	composedArbitraryMsg, err := ComposeArbitraryMsg(addr, nonce)
+	if err != nil {
+		return false, fmt.Errorf("failed to compose arbitrary msg: %w", err)
+	}
 	bs, err := hex.DecodeString(pk)
 	if err != nil {
 		return false, fmt.Errorf("decode public key from pk error:%w", err)
 	}
+	signature, err := hex.DecodeString(sign)
+	if err != nil {
+		return false, fmt.Errorf("decode msg of sign error:%w", err)
+	}
 
 	pubkey := &secp256k1.PubKey{Key: bs}
-	return VerifySignature(nonce, sign, pubkey)
+	return pubkey.VerifySignature(composedArbitraryMsg, signature), nil
 }
 
-// VerifyComosAddr 验证 comos 链的地址是否正确
+// VerifyComosAddr 验证 comos 链的地址是否正确,paddr钱包地址
 func VerifyComosAddr(paddr, pk, pr string) (bool, error) {
 	bs, err := hex.DecodeString(pk)
 	if err != nil {

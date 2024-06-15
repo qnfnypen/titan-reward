@@ -2,10 +2,8 @@ package auth
 
 import (
 	"context"
-	"crypto/rand"
 	"embed"
 	"fmt"
-	"io"
 	"strings"
 	"text/template"
 
@@ -13,6 +11,7 @@ import (
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/svc"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/types"
 	"github.com/qnfnypen/titan-reward/common/myerror"
+	"github.com/qnfnypen/titan-reward/common/oputil"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -56,7 +55,7 @@ func (l *GetVerifyCodeLogic) GetVerifyCode(req *types.GetVerifyCodeReq) (resp *t
 	gzErr.RespErr = myerror.GetMsg(myerror.GetVerifyCodeErrCode, lan)
 
 	// 生成随机码，并设置redis缓存
-	nonce := generateNonce(6)
+	nonce := oputil.GenerateNonce(6)
 	err = l.svcCtx.RedisCli.SetexCtx(l.ctx, fmt.Sprintf("%s_%s", types.CodeRedisPre, req.Username), nonce, 5*60)
 	if err != nil {
 		return nil, gzErr
@@ -110,17 +109,4 @@ func (l *GetVerifyCodeLogic) sendCodeEmail(code, lang string, email ...string) e
 
 	from := fmt.Sprintf("Titan Network <%s>", l.svcCtx.Config.Email.Username)
 	return l.svcCtx.EmailCli.SendEmail(subject, from, "", sendBody, "text/html", email...)
-}
-
-func generateNonce(len int) string {
-	randBytes := []byte{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
-
-	nonce := make([]byte, len)
-	io.ReadFull(rand.Reader, nonce)
-
-	for i, v := range nonce {
-		nonce[i] = randBytes[v%10]
-	}
-
-	return string(nonce)
 }

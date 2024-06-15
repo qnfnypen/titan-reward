@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"encoding/json"
+	"math"
 	"strings"
 	"unsafe"
 
@@ -112,7 +113,7 @@ func (l *InfoLogic) Info() (resp *types.RewardInfo, err error) {
 
 func (l *InfoLogic) withdraw(user *model.User, coinNum float64) {
 	ctx := context.Background()
-	coin := decimal.NewFromFloat(coinNum).String()
+	coin := decimal.NewFromFloat(coinNum).Mul(decimal.NewFromFloat(math.Pow10(6))).String()
 
 	// 更新数据库
 	user.Status = 1

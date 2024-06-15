@@ -10,6 +10,7 @@
 2. 区块链浏览器的（排期， 1:1的做）
 链接：（https://testnet.bigdipper.live/evmos）
 3. 社区网站2 期 （目前设计还没有开始， 排期。。）
+4. 需求拆分: https://v7fo7kqp3lq.jp.larksuite.com/messenger/
 
 ### 文档
 #### 奖励中心

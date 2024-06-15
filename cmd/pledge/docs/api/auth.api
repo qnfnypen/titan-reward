@@ -1,0 +1,36 @@
+syntax = "v1"
+
+type (
+    LoginReq {
+        Wallet    string `json:"wallet"`    // 钱包地址
+        Sign      string `json:"sign"`      // 签名
+        PublicKey string `json:"publicKey"` // 公钥
+    }
+
+    LoginResp {
+        Token   string      `json:"token"`
+    }
+
+    GetCodeReq {
+        Wallet string `form:"wallet"`
+    }
+
+    CodeResp {
+        Code string `json:"code"` 
+    }
+)
+
+@server(
+    group: auth
+    middleware: HeaderMiddleware
+    prefix: api/pledge
+)
+service pledge-api {
+    @doc "用户登陆"
+    @handler userLogin
+    post /login (LoginReq) returns (LoginResp)
+
+    @doc "钱包的随机码"
+    @handler getCode
+    get /code (GetCodeReq) returns (CodeResp)
+}

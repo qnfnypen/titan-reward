@@ -1,0 +1,643 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "",
+    "description": "titan委托人质押交互",
+    "version": ""
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/pledge/code": {
+      "get": {
+        "summary": "钱包的随机码",
+        "operationId": "getCode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/CodeResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "wallet",
+            "in": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "auth"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ]
+      }
+    },
+    "/api/pledge/login": {
+      "post": {
+        "summary": "用户登陆",
+        "operationId": "userLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/LoginResp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LoginReq"
+            }
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/pledge/user/delegate": {
+      "post": {
+        "summary": "质押token",
+        "operationId": "Delegate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DelegateReq"
+            }
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/pledge/user/delegate/unbinding": {
+      "get": {
+        "summary": "获取进行中的解除质押",
+        "operationId": "GetUnbindingDelegate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/UnbindingDelegateInfo"
+              }
+            }
+          }
+        },
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/pledge/user/info": {
+      "get": {
+        "summary": "获取用户信息详情",
+        "operationId": "Info",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/UserInfo"
+            }
+          }
+        },
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/pledge/user/login_out": {
+      "put": {
+        "summary": "用户登出",
+        "operationId": "Loginout",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/pledge/user/redelegate": {
+      "put": {
+        "summary": "质押转移",
+        "operationId": "ReDelegate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ReDelegateReq"
+            }
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/pledge/user/rewards/withdraw": {
+      "post": {
+        "summary": "提取收益",
+        "operationId": "WithdrawRewards",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/pledge/user/undelegate": {
+      "put": {
+        "summary": "解除质押",
+        "operationId": "UnDelegate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DelegateReq"
+            }
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/pledge/user/undelegate/cancel": {
+      "put": {
+        "summary": "取消解除质押",
+        "operationId": "CancelUnDelegate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CancelUnDelegateReq"
+            }
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    },
+    "/api/pledge/user/validators": {
+      "get": {
+        "summary": "获取验证者信息",
+        "operationId": "Validators",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/Validators"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "kind",
+            "description": " 获取验证者节点信息 0-所有 1-质押",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int8",
+            "enum": [
+              "[0"
+            ]
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "default": "1"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "default": "10"
+          }
+        ],
+        "tags": [
+          "user"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "security": [
+          {
+            "apiKey": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "CancelUnDelegateReq": {
+      "type": "object",
+      "properties": {
+        "validator": {
+          "type": "string",
+          "description": " 验证者"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "description": " 数量"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 高度"
+        }
+      },
+      "title": "CancelUnDelegateReq",
+      "required": [
+        "validator",
+        "amount",
+        "height"
+      ]
+    },
+    "CodeResp": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        }
+      },
+      "title": "CodeResp",
+      "required": [
+        "code"
+      ]
+    },
+    "DelegateReq": {
+      "type": "object",
+      "properties": {
+        "validator": {
+          "type": "string",
+          "description": " 验证者"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "description": " 数量"
+        }
+      },
+      "title": "DelegateReq",
+      "required": [
+        "validator",
+        "amount"
+      ]
+    },
+    "GetCodeReq": {
+      "type": "object",
+      "properties": {
+        "wallet": {
+          "type": "string"
+        }
+      },
+      "title": "GetCodeReq",
+      "required": [
+        "wallet"
+      ]
+    },
+    "GetValidatorReq": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "integer",
+          "format": "int8",
+          "enum": [
+            "[0"
+          ],
+          "description": " 获取验证者节点信息 0-所有 1-质押"
+        },
+        "page": {
+          "type": "integer",
+          "format": "int64",
+          "default": "1"
+        },
+        "size": {
+          "type": "integer",
+          "format": "int64",
+          "default": "10"
+        }
+      },
+      "title": "GetValidatorReq"
+    },
+    "LoginReq": {
+      "type": "object",
+      "properties": {
+        "wallet": {
+          "type": "string",
+          "description": " 钱包地址"
+        },
+        "sign": {
+          "type": "string",
+          "description": " 签名"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": " 公钥"
+        }
+      },
+      "title": "LoginReq",
+      "required": [
+        "wallet",
+        "sign",
+        "publicKey"
+      ]
+    },
+    "LoginResp": {
+      "type": "object",
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      },
+      "title": "LoginResp",
+      "required": [
+        "token"
+      ]
+    },
+    "ReDelegateReq": {
+      "type": "object",
+      "properties": {
+        "scrValidator": {
+          "type": "string",
+          "description": " 原验证者"
+        },
+        "dstValidator": {
+          "type": "string",
+          "description": " 目标验证者"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double",
+          "description": " 数量"
+        }
+      },
+      "title": "ReDelegateReq",
+      "required": [
+        "scrValidator",
+        "dstValidator",
+        "amount"
+      ]
+    },
+    "UnbindingDelegateInfo": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": " 验证者头像"
+        },
+        "name": {
+          "type": "string",
+          "description": " 验证者名称"
+        },
+        "validator": {
+          "type": "string",
+          "description": " 验证者"
+        },
+        "tokens": {
+          "type": "number",
+          "format": "double",
+          "description": " 数量"
+        },
+        "unbindingPeriod": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 解绑期，最低的解绑到期时间戳"
+        },
+        "height": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 高度"
+        }
+      },
+      "title": "UnbindingDelegateInfo",
+      "required": [
+        "image",
+        "name",
+        "validator",
+        "tokens",
+        "unbindingPeriod",
+        "height"
+      ]
+    },
+    "UserInfo": {
+      "type": "object",
+      "properties": {
+        "availableToken": {
+          "type": "number",
+          "format": "double",
+          "description": " 可用余额"
+        },
+        "stakedToken": {
+          "type": "number",
+          "format": "double",
+          "description": " 质押数量"
+        },
+        "reward": {
+          "type": "number",
+          "format": "double",
+          "description": " 质押收益"
+        },
+        "unstakedToken": {
+          "type": "number",
+          "format": "double",
+          "description": " 锁仓质押"
+        }
+      },
+      "title": "UserInfo",
+      "required": [
+        "availableToken",
+        "stakedToken",
+        "reward",
+        "unstakedToken"
+      ]
+    },
+    "ValidatorInfo": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "type": "string",
+          "description": " 验证者头像"
+        },
+        "name": {
+          "type": "string",
+          "description": " 验证者名称"
+        },
+        "validator": {
+          "type": "string",
+          "description": " 验证者"
+        },
+        "stakedTokens": {
+          "type": "number",
+          "format": "double",
+          "description": " 总质押量"
+        },
+        "rate": {
+          "type": "number",
+          "format": "double",
+          "description": " 预期年利率"
+        },
+        "votingPower": {
+          "type": "number",
+          "format": "double",
+          "description": " 投票权"
+        },
+        "unbindingPeriod": {
+          "type": "integer",
+          "format": "int64",
+          "description": " 解绑期，最低的解绑到期时间戳"
+        },
+        "handlingFees": {
+          "type": "number",
+          "format": "double",
+          "description": " 质押手续费"
+        }
+      },
+      "title": "ValidatorInfo",
+      "required": [
+        "image",
+        "name",
+        "validator",
+        "stakedTokens",
+        "rate",
+        "votingPower",
+        "unbindingPeriod",
+        "handlingFees"
+      ]
+    },
+    "Validators": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ValidatorInfo"
+          }
+        }
+      },
+      "title": "Validators",
+      "required": [
+        "total",
+        "list"
+      ]
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Enter JWT Bearer token **_only_**",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}
