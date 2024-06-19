@@ -67,39 +67,39 @@ type (
 	prefix:     api/pledge/user
 )
 service pledge-api {
-	@doc "用户登出"
+	@doc "用户登出(可用)"
 	@handler Loginout
 	put /login_out
 
-	@doc "获取用户信息详情"
+	@doc "获取用户信息详情(可用)"
 	@handler Info
 	get /info returns (UserInfo)
 
-	@doc "获取验证者信息"
+	@doc "获取验证者信息(可用)"
 	@handler Validators
 	get /validators (GetValidatorReq) returns (Validators)
 
-	@doc "质押token"
+	@doc "质押token(不可用)"
 	@handler Delegate
 	post /delegate (DelegateReq)
 
-	@doc "质押转移"
+	@doc "质押转移(不可用)"
 	@handler ReDelegate
 	put /redelegate (ReDelegateReq)
 
-	@doc "解除质押"
+	@doc "解除质押(不可用)"
 	@handler UnDelegate
 	put /undelegate (DelegateReq)
 
-	@doc "取消解除质押"
+	@doc "取消解除质押(不可用)"
 	@handler CancelUnDelegate
 	put /undelegate/cancel (CancelUnDelegateReq)
 
-	@doc "获取进行中的解除质押"
+	@doc "获取进行中的解除质押(可用)"
 	@handler GetUnbindingDelegate
 	get /delegate/unbinding returns ([]UnbindingDelegateInfo)
 
-	@doc "提取收益"
+	@doc "提取收益(不可用)"
 	@handler WithdrawRewards
 	post /rewards/withdraw
 }

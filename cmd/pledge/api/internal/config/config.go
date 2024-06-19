@@ -17,8 +17,6 @@ type Config struct {
 
 	Mysql struct {
 		DataSource string
-		ExplorerDS string
-		QuestDS    string
 		CacheRedis cache.CacheConf
 	}
 

@@ -26,11 +26,11 @@ type (
     prefix: api/pledge
 )
 service pledge-api {
-    @doc "用户登陆"
+    @doc "用户登陆(可用)"
     @handler userLogin
     post /login (LoginReq) returns (LoginResp)
 
-    @doc "钱包的随机码"
+    @doc "钱包的随机码(可用)"
     @handler getCode
     get /code (GetCodeReq) returns (CodeResp)
 }

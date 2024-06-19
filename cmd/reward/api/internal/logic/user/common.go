@@ -45,7 +45,7 @@ func (s *sctx) GetRewardByUID(ctx context.Context, uid int64) (*RewardInfo, erro
 	resp.ExplorerWalletUser, err = s.ExplorerUserModel.FindOneByUsername(ctx, resp.User.WalletAddr)
 	switch err {
 	case model.ErrNotFound:
-		resp.ExplorerEmailUser = new(model.Users)
+		resp.ExplorerWalletUser = new(model.Users)
 	case nil:
 	default:
 		return nil, fmt.Errorf("get titan-explorer user's info by wallet error:%w", err)

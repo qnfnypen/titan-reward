@@ -34,7 +34,7 @@ func TestSendCodeEmail(t *testing.T) {
 }
 
 func TestCheckUsername(t *testing.T) {
-	un := "titan128pqwynnyu66ujkjsepv08s5adaqym8k5p6um7"
+	un := "anqi@titannet.io"
 	t.Log(checkUsername(un))
 }
 

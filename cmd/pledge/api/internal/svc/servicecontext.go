@@ -49,7 +49,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:           c,
 		HeaderMiddleware: middleware.NewHeaderMiddleware().Handle,
-		AuthMiddleware:   middleware.NewAuthMiddleware().Handle,
+		AuthMiddleware:   middleware.NewAuthMiddleware(rcli).Handle,
 		UserModel:        model.NewUserModel(conn, c.Mysql.CacheRedis),
 		RedisCli:         rcli,
 		TitanCli:         tcli,

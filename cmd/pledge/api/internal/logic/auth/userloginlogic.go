@@ -60,7 +60,7 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 	}
 
 	// 验证用户钱包地址
-	match, err := opcheck.VerifyComosSign(req.Wallet, nonce, req.Sign, req.PublicKey)
+	match, err := opcheck.VerifyComosSign(req.Wallet, fmt.Sprintf("TitanNetWork(%s)", nonce), req.Sign, req.PublicKey)
 	if err != nil {
 		gzErr.LogErr = merror.NewError(fmt.Errorf("verify address error:%w", err)).Error()
 		return nil, gzErr

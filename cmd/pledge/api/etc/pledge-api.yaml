@@ -10,7 +10,7 @@ Log:
   KeepDays: 30
 
 Mysql:
-  DataSource: root:123456@tcp(127.0.0.1:3306)/titan_pledge?charset=utf8mb4&parseTime=true&loc=Local
+  DataSource: root:abcd1234@tcp(127.0.0.1:3306)/titan_pledge?charset=utf8mb4&parseTime=true&loc=Local
   CacheRedis:
     - Host: 127.0.0.1:6379
       Type: node

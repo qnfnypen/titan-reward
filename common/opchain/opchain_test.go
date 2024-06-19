@@ -112,3 +112,12 @@ func TestGetUnBondingDelegations(t *testing.T) {
 
 	t.Log(coins.Amount.BigInt())
 }
+
+func TestWithdrawRewards(t *testing.T) {
+	addr := "titan1rlhtz5lyncsq4s52a2mnpftcnh5ttsy30vft80"
+
+	err := titanCli.WithdrawRewards(context.Background(), addr)
+	if err != nil {
+		t.Fatal(err)
+	}
+}

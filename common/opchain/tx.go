@@ -97,13 +97,26 @@ func (tc *TitanClient) CancelUnbondingDelegation(ctx context.Context, delegatorA
 
 // WithdrawRewards 提取收益
 func (tc *TitanClient) WithdrawRewards(ctx context.Context, delegatorAddr string) error {
+	fromAddr, err := tc.account.Address(tc.addressPrefix)
+	if err != nil {
+		return fmt.Errorf("get address of account error:%w", err)
+	}
 	cli := distribution.NewMsgClient(tc.cli.Context().GRPCClient)
 
 	msg := &distribution.MsgWithdrawDelegatorReward{
-		DelegatorAddress: delegatorAddr,
+		DelegatorAddress: fromAddr,
 	}
 
-	_, err := cli.WithdrawDelegatorReward(ctx, msg)
+	setMsg := &distribution.MsgSetWithdrawAddress{
+		DelegatorAddress: fromAddr,
+	}
+
+	_, err = cli.SetWithdrawAddress(ctx, setMsg)
+	if err != nil {
+		return fmt.Errorf("change the withdraw address for a delegator error:%w", err)
+	}
+
+	_, err = cli.WithdrawDelegatorReward(ctx, msg)
 	if err != nil {
 		return fmt.Errorf("withdraw rewards of delegator from a single validator error:%w", err)
 	}

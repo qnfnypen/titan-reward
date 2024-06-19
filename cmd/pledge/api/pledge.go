@@ -35,7 +35,7 @@ func main() {
 }
 
 func generateNoFoundHandler() rest.RunOption {
-	fp := "swagger.json"
+	fp := "docs/swagger/pledge-api.json"
 	info := &mhandler.SwaggerInfo{BasePath: "//"}
 	url := "/swagger"
 	swagHandler, err := mhandler.SwaggerHandler(fp, url, info)
