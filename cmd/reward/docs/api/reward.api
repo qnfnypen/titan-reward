@@ -31,6 +31,7 @@ type (
 	}
 	RewardSum {
 		Total float64   `json:"total"`
+		GCT   RewardMap `json:"gct"`
 		TNT1  RewardMap `json:"tnt1"`
 		TNT2  RewardMap `json:"tnt2"`
 		TCP   RewardMap `json:"tcp"`

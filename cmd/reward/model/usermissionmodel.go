@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
@@ -40,25 +41,9 @@ func (m *customUserMissionModel) withSession(session sqlx.Session) UserMissionMo
 func (m *customUserMissionModel) GetCreditByUn(ctx context.Context, un string) (int64, error) {
 	var credit int64
 
-	query, args, err := squirrel.Select("IFNULL(SUM(credit),0)").From(m.table).Where("username = ?", un).ToSql()
-	if err != nil {
-		return credit, fmt.Errorf("get sum of credit error:%w", err)
-	}
-
-	err = m.conn.QueryRowCtx(ctx, &credit, query, args...)
-	switch err {
-	case sqlc.ErrNotFound:
+	if strings.TrimSpace(un) == "" {
 		return 0, nil
-	case nil:
-		return credit, nil
-	default:
-		return 0, fmt.Errorf("get sum of credit error:%w", err)
 	}
-}
-
-// GetInviteCreditByUn 获取用户社区邀请好友的奖励
-func (m *customUserMissionModel) GetInviteCreditByUn(ctx context.Context, un string) (int64, error) {
-	var credit int64
 
 	query, args, err := squirrel.Select("IFNULL(SUM(credit),0)").From(m.table).Where("username = ?", un).ToSql()
 	if err != nil {

@@ -16,6 +16,21 @@
     "application/json"
   ],
   "paths": {
+    "/api/reward/captcha": {
+      "get": {
+        "summary": "获取滑块验证图像",
+        "operationId": "getBlockCaptcha",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {}
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/api/reward/login": {
       "post": {
         "summary": "用户登陆",
@@ -168,7 +183,7 @@
       }
     },
     "/api/reward/verify_code": {
-      "get": {
+      "post": {
         "summary": "获取邮箱验证码/钱包的随机码",
         "operationId": "getVerifyCode",
         "responses": {
@@ -181,17 +196,16 @@
         },
         "parameters": [
           {
-            "name": "username",
-            "in": "query",
+            "name": "body",
+            "in": "body",
             "required": true,
-            "type": "string"
+            "schema": {
+              "$ref": "#/definitions/GetVerifyCodeReq"
+            }
           }
         ],
         "tags": [
           "auth"
-        ],
-        "consumes": [
-          "multipart/form-data"
         ]
       }
     }
@@ -289,6 +303,12 @@
       "type": "object",
       "properties": {
         "username": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "pointJson": {
           "type": "string"
         }
       },
@@ -460,6 +480,9 @@
           "type": "number",
           "format": "double"
         },
+        "gct": {
+          "$ref": "#/definitions/RewardMap"
+        },
         "tnt1": {
           "$ref": "#/definitions/RewardMap"
         },
@@ -473,6 +496,7 @@
       "title": "RewardSum",
       "required": [
         "total",
+        "gct",
         "tnt1",
         "tnt2",
         "tcp"

@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/zeromicro/go-zero/core/stores/sqlc"
@@ -39,6 +40,10 @@ func (m *customInviteLogModel) withSession(session sqlx.Session) InviteLogModel 
 // GetInviteCreditByUn 获取用户社区邀请好友的奖励
 func (m *customInviteLogModel) GetInviteCreditByUn(ctx context.Context, un string) (int64, error) {
 	var credit int64
+
+	if strings.TrimSpace(un) == "" {
+		return 0, nil
+	}
 
 	query, args, err := squirrel.Select("IFNULL(SUM(credit),0)").From(m.table).Where("username = ?", un).ToSql()
 	if err != nil {

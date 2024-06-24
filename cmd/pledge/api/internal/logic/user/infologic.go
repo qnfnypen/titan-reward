@@ -10,6 +10,7 @@ import (
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/svc"
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/types"
 	"github.com/qnfnypen/titan-reward/common/myerror"
+	"github.com/shopspring/decimal"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -36,7 +37,7 @@ func (l *InfoLogic) Info() (resp *types.UserInfo, err error) {
 		gzErr merror.GzErr
 	)
 	resp = new(types.UserInfo)
-	
+
 	lan := l.ctx.Value(types.LangKey).(string)
 	wallet := l.ctx.Value("wallet").(string)
 	gzErr.RespErr = myerror.GetMsg(myerror.GetUserInfoErrCode, lan)
@@ -49,6 +50,7 @@ func (l *InfoLogic) Info() (resp *types.UserInfo, err error) {
 	}
 	balanceFloat := new(big.Float).SetInt(balance.Amount.BigInt())
 	resp.AvailableToken, _ = balanceFloat.Quo(balanceFloat, big.NewFloat(math.Pow10(6))).Float64()
+	resp.AvailableToken, _ = decimal.NewFromFloat(resp.AvailableToken).Round(4).Float64()
 	// 获取质押token的数量
 	stakedTokens, err := l.svcCtx.TitanCli.GetDelegations(l.ctx, wallet)
 	if err != nil {
@@ -57,14 +59,15 @@ func (l *InfoLogic) Info() (resp *types.UserInfo, err error) {
 	}
 	stakedTokensFloat := new(big.Float).SetInt(stakedTokens.Amount.BigInt())
 	resp.StakedToken, _ = stakedTokensFloat.Quo(stakedTokensFloat, big.NewFloat(math.Pow10(6))).Float64()
+	resp.StakedToken, _ = decimal.NewFromFloat(resp.StakedToken).Round(4).Float64()
 	// 获取质押的收益
 	rewards, err := l.svcCtx.TitanCli.GetRewards(l.ctx, wallet)
 	if err != nil {
 		gzErr.LogErr = merror.NewError(fmt.Errorf("get rewards of user error:%w", err)).Error()
 		return nil, gzErr
 	}
-	rewardsFloat := new(big.Float).SetInt(rewards)
-	resp.Reward, _ = rewardsFloat.Quo(rewardsFloat, big.NewFloat(math.Pow10(6))).Float64()
+	resp.Reward, _ = rewards.Quo(rewards, big.NewFloat(math.Pow10(6))).Float64()
+	resp.Reward, _ = decimal.NewFromFloat(resp.Reward).Round(4).Float64()
 	// 获取质押锁仓的token数量
 	unStakedTokens, err := l.svcCtx.TitanCli.GetUnBondingDelegations(l.ctx, wallet)
 	if err != nil {
@@ -73,6 +76,8 @@ func (l *InfoLogic) Info() (resp *types.UserInfo, err error) {
 	}
 	unStakedTokensFloat := new(big.Float).SetInt(unStakedTokens.Amount.BigInt())
 	resp.UnstakedToken, _ = unStakedTokensFloat.Quo(unStakedTokensFloat, big.NewFloat(math.Pow10(6))).Float64()
+	resp.UnstakedToken, _ = decimal.NewFromFloat(resp.UnstakedToken).Round(4).Float64()
+	resp.TotalToken = resp.AvailableToken + resp.StakedToken + resp.Reward + resp.UnstakedToken
 
 	return resp, nil
 }

@@ -3,10 +3,13 @@ package opchain
 import (
 	"context"
 	"fmt"
+	"log"
+	pmath "math"
 	"math/big"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	query "github.com/cosmos/cosmos-sdk/types/query"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -59,8 +62,8 @@ func (tc *TitanClient) GetUnBondingDelegations(ctx context.Context, addr string)
 }
 
 // GetRewards 获取所有质押的收益
-func (tc *TitanClient) GetRewards(ctx context.Context, addr string) (*big.Int, error) {
-	var rewards = new(big.Int)
+func (tc *TitanClient) GetRewards(ctx context.Context, addr string) (*big.Float, error) {
+	var rewards = new(big.Float)
 
 	queryClient := distribution.NewQueryClient(tc.cli.Context())
 
@@ -73,8 +76,14 @@ func (tc *TitanClient) GetRewards(ctx context.Context, addr string) (*big.Int, e
 		return nil, fmt.Errorf("queries the total rewards accrued by each delegator(%s) error:%w", addr, err)
 	}
 
-	for _, v := range resp.Total {
-		rewards = rewards.Add(rewards, v.Amount.BigInt())
+	for _, v := range resp.Rewards {
+		log.Println(v.ValidatorAddress)
+		for _, vv := range v.Reward {
+			log.Println(vv.Amount.BigInt(), vv.Denom)
+			bf := new(big.Float).SetInt(vv.Amount.BigInt())
+			bf = bf.Quo(bf, big.NewFloat(pmath.Pow10(18)))
+			rewards = rewards.Add(rewards, bf)
+		}
 	}
 
 	return rewards, nil
@@ -102,10 +111,15 @@ func (tc *TitanClient) GetBalance(ctx context.Context, addr string) (sdk.Coin, e
 }
 
 // QueryValidators 查询当前的验证者
-func (tc *TitanClient) QueryValidators(ctx context.Context, page, size uint64) ([]staking.Validator, error) {
+func (tc *TitanClient) QueryValidators(ctx context.Context, page, size uint64, key string) ([]staking.Validator, error) {
 	queryClient := staking.NewQueryClient(tc.cli.Context())
 
-	in := &staking.QueryValidatorsRequest{}
+	in := &staking.QueryValidatorsRequest{
+		Pagination: new(query.PageRequest),
+	}
+	if key != "" {
+		in.Pagination.Key = []byte(key)
+	}
 	if size != 0 && page > 0 {
 		in.Pagination.Limit = size
 		in.Pagination.Offset = (page - 1) * size
@@ -124,6 +138,7 @@ func (tc *TitanClient) QueryDelgatorVlidators(ctx context.Context, delegatorAddr
 
 	in := &staking.QueryDelegatorValidatorsRequest{
 		DelegatorAddr: delegatorAddr,
+		Pagination:    new(query.PageRequest),
 	}
 	if size != 0 && page > 0 {
 		in.Pagination.Limit = size
@@ -137,12 +152,50 @@ func (tc *TitanClient) QueryDelgatorVlidators(ctx context.Context, delegatorAddr
 	return resp.GetValidators(), nil
 }
 
+// QueryDelegatorDelegations 获取所有质押金额
+func (tc *TitanClient) QueryDelegatorDelegations(ctx context.Context, delegatorAddr string, page, size uint64) ([]staking.DelegationResponse, error) {
+	queryClient := staking.NewQueryClient(tc.cli.Context())
+
+	in := &staking.QueryDelegatorDelegationsRequest{
+		DelegatorAddr: delegatorAddr,
+		Pagination:    new(query.PageRequest),
+	}
+	if size != 0 && page > 0 {
+		in.Pagination.Limit = size
+		in.Pagination.Offset = (page - 1) * size
+	}
+	resp, err := queryClient.DelegatorDelegations(ctx, in)
+	if err != nil {
+		return nil, fmt.Errorf("get validators by delegator error:%w", err)
+	}
+
+	return resp.DelegationResponses, nil
+}
+
+// QueryDelegation 获取质押金额
+func (tc *TitanClient) QueryDelegation(ctx context.Context, delegatorAddr, vaddr string) (*staking.QueryDelegationResponse, error) {
+	queryClient := staking.NewQueryClient(tc.cli.Context())
+
+	in := &staking.QueryDelegationRequest{
+		DelegatorAddr: delegatorAddr,
+		ValidatorAddr: vaddr,
+	}
+
+	resp, err := queryClient.Delegation(ctx, in)
+	if err != nil {
+		return nil, fmt.Errorf("get validators by delegator error:%w", err)
+	}
+
+	return resp, nil
+}
+
 // UnbondingDelegations 获取解绑质押验证人
 func (tc *TitanClient) UnbondingDelegations(ctx context.Context, delegatorAddr string, page, size uint64) ([]staking.UnbondingDelegation, error) {
 	queryClient := staking.NewQueryClient(tc.cli.Context())
 
 	in := &staking.QueryDelegatorUnbondingDelegationsRequest{
 		DelegatorAddr: delegatorAddr,
+		Pagination:    new(query.PageRequest),
 	}
 	if size != 0 && page > 0 {
 		in.Pagination.Limit = size

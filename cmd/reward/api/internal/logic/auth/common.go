@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -85,6 +86,8 @@ func checkUsername(un string) unKind {
 		titanRegexPattern       = `^titan[a-zA-Z0-9]{39}$`
 		// titan128pqwynnyu66ujkjsepv08s5adaqym8k5p6um7
 	)
+
+	un = strings.TrimSpace(un)
 
 	emailRegex := regexp.MustCompile(emailRegexPattern)
 	bitcoinRegex := regexp.MustCompile(bitcoinRegexPattern)

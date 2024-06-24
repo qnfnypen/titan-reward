@@ -21,7 +21,8 @@ type GetCodeReq struct {
 }
 
 type GetValidatorReq struct {
-	Kind int8   `form:"kind,options=[0,1],optional"` // 获取验证者节点信息 0-所有 1-质押
+	Kind int8   `form:"kind,options=0|1,optional"` // 获取验证者节点信息 0-所有 1-质押
+	Key  string `form:"key,optional"`              // key
 	Page uint64 `form:"page,optional,default=1"`
 	Size uint64 `form:"size,optional,default=10"`
 }
@@ -52,6 +53,7 @@ type UnbindingDelegateInfo struct {
 }
 
 type UserInfo struct {
+	TotalToken     float64 `json:"totalToken"`     // 总数
 	AvailableToken float64 `json:"availableToken"` // 可用余额
 	StakedToken    float64 `json:"stakedToken"`    // 质押数量
 	Reward         float64 `json:"reward"`         // 质押收益

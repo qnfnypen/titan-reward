@@ -9,7 +9,8 @@ import (
 type Config struct {
 	rest.RestConf
 
-	Location string
+	Location     string
+	ResourcePath string
 
 	Mysql struct {
 		DataSource string
@@ -31,6 +32,7 @@ type Config struct {
 	}
 
 	TTNTRatio struct {
+		GCT  float64
 		TNT1 float64
 		TNT2 float64
 		TCP  float64

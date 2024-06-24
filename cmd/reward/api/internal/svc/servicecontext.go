@@ -10,7 +10,9 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
 	"github.com/zeromicro/go-zero/rest"
 
+	"github.com/TestsLing/aj-captcha-go/service"
 	"github.com/qnfnypen/titan-reward/cmd/reward/model"
+	"github.com/qnfnypen/titan-reward/common/opcaptcha"
 	"github.com/qnfnypen/titan-reward/common/opchain"
 	"github.com/qnfnypen/titan-reward/common/opemail"
 )
@@ -27,6 +29,7 @@ type ServiceContext struct {
 
 	HeaderMiddleware rest.Middleware
 	AuthMiddleware   rest.Middleware
+	CaptchaFactory   *service.CaptchaServiceFactory
 
 	RedisCli *redis.Redis
 	EmailCli opemail.Client
@@ -67,5 +70,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RedisCli:              rcli,
 		EmailCli:              opemail.NewEmailConfig(c.Email.SMTPHost, c.Email.Username, c.Email.Password, c.Email.SMTPPort),
 		TitanCli:              tcli,
+		CaptchaFactory:        opcaptcha.CreateFactory(c.ResourcePath),
 	}
 }

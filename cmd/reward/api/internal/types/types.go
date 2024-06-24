@@ -23,7 +23,9 @@ type CommonInfo struct {
 }
 
 type GetVerifyCodeReq struct {
-	Username string `form:"username"`
+	Username  string `json:"username"`
+	Token     string `json:"token,optional"`
+	PointJSON string `json:"pointJson,optional"`
 }
 
 type HerschelInfo struct {
@@ -67,6 +69,7 @@ type RewardMap struct {
 
 type RewardSum struct {
 	Total float64   `json:"total"`
+	GCT   RewardMap `json:"gct"`
 	TNT1  RewardMap `json:"tnt1"`
 	TNT2  RewardMap `json:"tnt2"`
 	TCP   RewardMap `json:"tcp"`

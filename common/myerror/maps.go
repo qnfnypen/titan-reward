@@ -8,6 +8,7 @@ var lanErrMaps = map[string]map[ErrCode]string{
 var enMaps = map[ErrCode]string{
 	UsernameErrCode:              "Please enter the correct email or wallet address",
 	GetVerifyCodeErrCode:         "Failed to obtain verification code/random code",
+	CaptchaErrCode:               "Human machine verification failed",
 	LoginCodeErrCode:             "Login failed",
 	ParamErrCode:                 "Param error",
 	AddrSignOrCodeErrCode:        "Wallet address signature or email verification code error",
@@ -29,6 +30,7 @@ var enMaps = map[ErrCode]string{
 var cnMaps = map[ErrCode]string{
 	UsernameErrCode:              "请输入正确的邮箱或钱包地址",
 	GetVerifyCodeErrCode:         "获取验证码/随机码失败",
+	CaptchaErrCode:               "人机校验失败",
 	LoginCodeErrCode:             "登陆失败",
 	ParamErrCode:                 "参数错误",
 	AddrSignOrCodeErrCode:        "钱包地址签名或邮箱验证码错误",

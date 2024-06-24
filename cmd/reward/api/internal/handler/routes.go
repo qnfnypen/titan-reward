@@ -17,6 +17,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Middleware{serverCtx.HeaderMiddleware},
 			[]rest.Route{
 				{
+					// 获取滑块验证图像
+					Method:  http.MethodGet,
+					Path:    "/captcha",
+					Handler: auth.GetBlockCaptchaHandler(serverCtx),
+				},
+				{
 					// 用户登陆
 					Method:  http.MethodPost,
 					Path:    "/login",
@@ -24,7 +30,7 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				},
 				{
 					// 获取邮箱验证码/钱包的随机码
-					Method:  http.MethodGet,
+					Method:  http.MethodPost,
 					Path:    "/verify_code",
 					Handler: auth.GetVerifyCodeHandler(serverCtx),
 				},

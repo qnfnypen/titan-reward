@@ -7,6 +7,7 @@ import (
 	"strings"
 	"text/template"
 
+	constant "github.com/TestsLing/aj-captcha-go/const"
 	"github.com/qnfnypen/gzocomm/merror"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/svc"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/types"
@@ -63,6 +64,14 @@ func (l *GetVerifyCodeLogic) GetVerifyCode(req *types.GetVerifyCodeReq) (resp *t
 	// 判断用户名是邮箱还是钱包地址
 	switch checkUsername(req.Username) {
 	case emailKind:
+		// 滑块校验
+		ser := l.svcCtx.CaptchaFactory.GetService(constant.BlockPuzzleCaptcha)
+		err = ser.Check(req.Token, req.PointJSON)
+		if err != nil {
+			gzErr.RespErr = myerror.GetMsg(myerror.CaptchaErrCode, lan)
+			gzErr.LogErr = merror.NewError(fmt.Errorf("滑块验证失败:%w", err)).Error()
+			return nil, gzErr
+		}
 		go l.sendCodeEmail(nonce, lan, req.Username)
 		// resp.VerifyCode = nonce
 	case addrKind:

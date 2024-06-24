@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"encoding/json"
+	"math"
 	"strings"
 	"unsafe"
 
@@ -49,9 +50,11 @@ func (l *InfoLogic) Info() (resp *types.RewardInfo, err error) {
 		return nil, gzErr
 	}
 
-	// TNT1
+	// GCT
 	ecr := info.ExplorerEmailUser.ClosedTestReward
 	wcr := info.ExplorerWalletUser.ClosedTestReward
+
+	// TNT1
 	ehgr := info.ExplorerEmailUser.HuygensReward
 	ehgrr := info.ExplorerEmailUser.HuygensReferralReward
 	whgr := info.ExplorerWalletUser.HuygensReward
@@ -69,12 +72,14 @@ func (l *InfoLogic) Info() (resp *types.RewardInfo, err error) {
 
 	// 获取邮箱账户收益的总额
 	etcp := decimal.NewFromInt(eqr + eqrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TCP))
-	etnt1 := decimal.NewFromFloat(ecr + ehgr + ehgrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT1))
+	egct := decimal.NewFromFloat(ecr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.GCT))
+	etnt1 := decimal.NewFromFloat(ehgr + ehgrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT1))
 	etnt2 := decimal.NewFromFloat(ehsr + ehsrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT2))
 	emailTTNT, _ := etcp.Add(etnt1).Add(etnt2).Float64()
 	// 获取钱包地址账户收益的总额
 	wtcp := decimal.NewFromInt(wqr + wqrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TCP))
-	wtnt1 := decimal.NewFromFloat(wcr + whgr + whgrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT1))
+	wgct := decimal.NewFromFloat(wcr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.GCT))
+	wtnt1 := decimal.NewFromFloat(whgr + whgrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT1))
 	wtnt2 := decimal.NewFromFloat(whsr + whsrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT2))
 	walletTTNT, _ := wtcp.Add(wtnt1).Add(wtnt2).Float64()
 
@@ -82,12 +87,18 @@ func (l *InfoLogic) Info() (resp *types.RewardInfo, err error) {
 	resp.Wallet = types.TTNTInfo{Address: info.User.WalletAddr, Value: walletTTNT}
 	resp.Status = info.User.Status
 	resp.User = types.UserInfo{Email: info.User.Email, ETH: info.User.WalletAddr, Titan: info.User.Address}
-	ttnt, _ := etcp.Add(etnt1).Add(etnt2).Add(wtcp).Add(wtnt1).Add(wtnt2).Float64()
+	ttnt, _ := etcp.Add(etnt1).Add(etnt2).Add(wtcp).Add(wtnt1).Add(wtnt2).Add(egct).Add(wgct).Float64()
 	tnt1, _ := etnt1.Add(wtnt1).Float64()
 	tnt2, _ := etnt2.Add(wtnt2).Float64()
 	tcp, _ := etcp.Add(wtcp).Float64()
+	tgct, _ := egct.Add(wgct).Float64()
+
 	resp.Reward = types.RewardSum{
 		Total: ttnt,
+		GCT: types.RewardMap{
+			Reward: ecr + wcr,
+			TTNT:   tgct,
+		},
 		TNT1: types.RewardMap{
 			Reward: ecr + wcr + ehgr + ehgrr + whgr + whgrr,
 			TTNT:   tnt1,
@@ -112,7 +123,7 @@ func (l *InfoLogic) Info() (resp *types.RewardInfo, err error) {
 
 func (l *InfoLogic) withdraw(user *model.User, coinNum float64) {
 	ctx := context.Background()
-	// coin := decimal.NewFromFloat(coinNum).Mul(decimal.NewFromFloat(math.Pow10(6))).String()
+	coin := decimal.NewFromFloat(coinNum).Mul(decimal.NewFromFloat(math.Pow10(6))).String()
 
 	// 更新数据库
 	user.Status = 1
@@ -121,13 +132,13 @@ func (l *InfoLogic) withdraw(user *model.User, coinNum float64) {
 		logx.Error(err)
 		return
 	}
-	// err = l.svcCtx.TitanCli.SendCoin(ctx, user.Address, coin)
-	// if err != nil {
-	// 	logx.Error(err)
-	// 	user.Status = 0
-	// 	l.svcCtx.UserModel.Update(ctx, nil, user)
-	// 	return
-	// }
+	err = l.svcCtx.TitanCli.SendCoin(ctx, user.Address, coin)
+	if err != nil {
+		logx.Error(err)
+		user.Status = 0
+		l.svcCtx.UserModel.Update(ctx, nil, user)
+		return
+	}
 
 	// 成功则更新数据库
 	user.Status = 2

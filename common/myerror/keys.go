@@ -8,6 +8,8 @@ const (
 	UsernameErrCode ErrCode = 1000 + iota
 	// GetVerifyCodeErrCode 获取验证码/随机码失败
 	GetVerifyCodeErrCode
+	// CaptchaErrCode 人机校验失败
+	CaptchaErrCode
 	// LoginCodeErrCode 用户登陆失败
 	LoginCodeErrCode
 	// ParamErrCode 参数错误

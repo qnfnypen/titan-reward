@@ -2,6 +2,8 @@ Name: reward-api
 Host: 0.0.0.0
 Port: 8888
 Location: Asia/Shanghai
+Timeout: 100000
+ResourcePath:
 
 Log:
   Mode: file
@@ -28,6 +30,7 @@ Email:
   Password: 
 
 TTNTRatio:
+  GCT: 1
   TNT1: 500
   TNT2: 500
   TCP: 500

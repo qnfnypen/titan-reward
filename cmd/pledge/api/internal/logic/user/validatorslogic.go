@@ -44,7 +44,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 	gzErr.RespErr = myerror.GetMsg(myerror.GetValitorErrCode, lan)
 
 	// 获取所有的验证者的token
-	tokens, total, err := l.getAllTokens()
+	tokens, total, err := l.getAllTokens(req.Key)
 	if err != nil {
 		gzErr.LogErr = merror.NewError(err).Error()
 		return nil, gzErr
@@ -53,7 +53,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 	switch req.Kind {
 	case 0:
 		resp.Total = total
-		validators, err = l.svcCtx.TitanCli.QueryValidators(l.ctx, req.Page, req.Size)
+		validators, err = l.svcCtx.TitanCli.QueryValidators(l.ctx, req.Page, req.Size, req.Key)
 		if err != nil {
 			gzErr.LogErr = merror.NewError(fmt.Errorf("get all validators error:%w", err)).Error()
 			return nil, gzErr
@@ -71,31 +71,39 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 		}
 	}
 	for _, v := range validators {
+		token := v.Tokens.BigInt()
 		info := types.ValidatorInfo{}
 		info.Name = v.OperatorAddress
 		info.Validator = v.OperatorAddress
-		info.StakedTokens = getTTNT(v.Tokens.BigInt())
-		rf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.DelegatorShares.BigInt()), new(big.Float).SetInt(v.Tokens.BigInt())).Float64()
-		info.Rate = rf
+		if req.Kind == 1 {
+			del, err := l.svcCtx.TitanCli.QueryDelegation(l.ctx, wallet, v.OperatorAddress)
+			if err != nil {
+				gzErr.LogErr = merror.NewError(fmt.Errorf("get delgator's delegation error:%w", err)).Error()
+				return nil, gzErr
+			}
+			token = del.DelegationResponse.Balance.Amount.BigInt()
+		}
+		info.StakedTokens = getTTNT(token)
+		// rf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.DelegatorShares.BigInt()), new(big.Float).SetInt(v.Tokens.BigInt())).Float64()
+		// info.Rate = rf
 		vpf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.Tokens.BigInt()), new(big.Float).SetInt(tokens)).Float64()
-		info.VotingPower = vpf
+		info.VotingPower, _ = decimal.NewFromFloat(vpf).Round(4).Mul(decimal.NewFromInt(100)).Float64()
 		info.UnbindingPeriod = v.UnbondingTime.Unix()
 		dc, _ := decimal.NewFromString(v.Commission.Rate.String())
-		dcf, _ := dc.Round(4).Mul(decimal.NewFromInt(100)).Float64()
-		info.HandlingFees = dcf
+		info.HandlingFees, _ = dc.Round(4).Mul(decimal.NewFromInt(100)).Float64()
 		resp.List = append(resp.List, info)
 	}
 
 	return resp, nil
 }
 
-func (l *ValidatorsLogic) getAllTokens() (*big.Int, int64, error) {
+func (l *ValidatorsLogic) getAllTokens(key string) (*big.Int, int64, error) {
 	var (
 		totalTokens = new(big.Int)
 		count       int64
 	)
 
-	validators, err := l.svcCtx.TitanCli.QueryValidators(l.ctx, 0, 0)
+	validators, err := l.svcCtx.TitanCli.QueryValidators(l.ctx, 0, 0, key)
 	if err != nil {
 		return nil, 0, fmt.Errorf("get all tokens of validators error:%w", err)
 	}

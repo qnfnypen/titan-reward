@@ -3,7 +3,9 @@ module github.com/qnfnypen/titan-reward
 go 1.22.3
 
 require (
+	cosmossdk.io/math v1.3.0
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/TestsLing/aj-captcha-go v0.0.0-20240518053305-e20480a6396a
 	github.com/cosmos/cosmos-sdk v0.50.6
 	github.com/ethereum/go-ethereum v1.14.3
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -23,7 +25,6 @@ require (
 	cosmossdk.io/depinject v1.0.0-alpha.4 // indirect
 	cosmossdk.io/errors v1.0.1 // indirect
 	cosmossdk.io/log v1.3.1 // indirect
-	cosmossdk.io/math v1.3.0 // indirect
 	cosmossdk.io/store v1.1.0 // indirect
 	cosmossdk.io/x/tx v0.13.2 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -80,11 +81,13 @@ require (
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.6 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/glog v1.2.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
@@ -179,6 +182,7 @@ require (
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
+	golang.org/x/image v0.0.0-20220617043117-41969df76e82 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect

@@ -47,8 +47,9 @@ func (l *RewardDetailLogic) RewardDetail() (resp *types.RewardDetail, err error)
 		return nil, gzErr
 	}
 
-	// TNT1
+	// TTNT
 	cr := info.ExplorerEmailUser.ClosedTestReward + info.ExplorerWalletUser.ClosedTestReward
+	// TNT1
 	hgr := info.ExplorerEmailUser.HuygensReward + info.ExplorerWalletUser.HuygensReward
 	hgrr := info.ExplorerEmailUser.HuygensReferralReward + info.ExplorerWalletUser.HuygensReferralReward
 	// TNT2
@@ -58,12 +59,12 @@ func (l *RewardDetailLogic) RewardDetail() (resp *types.RewardDetail, err error)
 	qr := info.QuestEmailReward + info.QuestWalletReward
 	qrr := info.QuestEmailReferralReward + info.QuestWalletReferralReward
 
-	closed, _ := decimal.NewFromFloat(cr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT1)).Float64()
+	closed, _ := decimal.NewFromFloat(cr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.GCT)).Float64()
 	huygens, _ := decimal.NewFromFloat(hgr + hgrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT1)).Float64()
 	herschel, _ := decimal.NewFromFloat(hsr + hsrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TNT2)).Float64()
 	airdrop, _ := decimal.NewFromInt(qr + qrr).Div(decimal.NewFromFloat(l.svcCtx.Config.TTNTRatio.TCP)).Float64()
 
-	resp.Closed = types.ClosedInfo{ToTal: cr, Reward: cr, TTNT: closed, Ratio: l.svcCtx.Config.TTNTRatio.TNT1}
+	resp.Closed = types.ClosedInfo{ToTal: cr, Reward: cr, TTNT: closed, Ratio: l.svcCtx.Config.TTNTRatio.GCT}
 	resp.Huygens = types.CommonInfo{ToTal: hgr + hgrr, Reward: hgr, ReferralReward: hgrr, TTNT: huygens, Ratio: l.svcCtx.Config.TTNTRatio.TNT1}
 	resp.AirDrop = types.CommonInfo{ToTal: float64(qr + qrr), Reward: float64(qr), ReferralReward: float64(qrr), TTNT: airdrop, Ratio: l.svcCtx.Config.TTNTRatio.TCP}
 	resp.Herschel = types.HerschelInfo{ToTal: hsr + hsrr, Reward: hsr, TTNT: herschel, Ratio: l.svcCtx.Config.TTNTRatio.TNT2}

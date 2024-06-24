@@ -299,8 +299,16 @@
             "type": "integer",
             "format": "int8",
             "enum": [
-              "[0"
+              "0",
+              "1"
             ]
+          },
+          {
+            "name": "key",
+            "description": " key",
+            "in": "query",
+            "required": false,
+            "type": "string"
           },
           {
             "name": "page",
@@ -409,9 +417,14 @@
           "type": "integer",
           "format": "int8",
           "enum": [
-            "[0"
+            "0",
+            "1"
           ],
           "description": " 获取验证者节点信息 0-所有 1-质押"
+        },
+        "key": {
+          "type": "string",
+          "description": " key"
         },
         "page": {
           "type": "integer",
@@ -529,6 +542,11 @@
     "UserInfo": {
       "type": "object",
       "properties": {
+        "totalToken": {
+          "type": "number",
+          "format": "double",
+          "description": " 总数"
+        },
         "availableToken": {
           "type": "number",
           "format": "double",
@@ -552,6 +570,7 @@
       },
       "title": "UserInfo",
       "required": [
+        "totalToken",
         "availableToken",
         "stakedToken",
         "reward",
