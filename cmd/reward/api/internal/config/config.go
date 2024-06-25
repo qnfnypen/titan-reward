@@ -5,6 +5,14 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 )
 
+// EmailConfig 邮箱客户端配置
+type EmailConfig struct {
+	SMTPHost string
+	SMTPPort int
+	Username string
+	Password string
+}
+
 // Config 配置文件映射
 type Config struct {
 	rest.RestConf
@@ -24,12 +32,7 @@ type Config struct {
 		Pass string
 	}
 
-	Email struct {
-		SMTPHost string
-		SMTPPort int
-		Username string
-		Password string
-	}
+	Email []EmailConfig
 
 	TTNTRatio struct {
 		GCT  float64

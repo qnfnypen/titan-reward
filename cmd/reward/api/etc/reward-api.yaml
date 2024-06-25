@@ -24,10 +24,10 @@ Redis:
   Pass: "123456"
 
 Email:
-  SMTPHost: 
-  SMTPPort: 
-  Username: 
-  Password: 
+  - SMTPHost:
+    SMTPPort: 
+    Username: 
+    Password: 
 
 TTNTRatio:
   GCT: 1

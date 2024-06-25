@@ -33,7 +33,7 @@ type ServiceContext struct {
 	CaptchaFactory   *service.CaptchaServiceFactory
 
 	RedisCli *redis.Redis
-	EmailCli opemail.Client
+	EmailCli opemail.GetRandEmailConf
 	TitanCli *opchain.TitanClient
 }
 
@@ -65,6 +65,12 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		DBPassWord: c.Redis.Pass,
 	}
 
+	emailConfs := make([]opemail.EmailConfig, 0)
+	err = copier.Copy(&emailConfs, &c.Email)
+	if err != nil {
+		panic("copy config of email error")
+	}
+
 	return &ServiceContext{
 		Config:                c,
 		UserModel:             model.NewUserModel(conn, c.Mysql.CacheRedis),
@@ -74,7 +80,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		HeaderMiddleware:      middleware.NewHeaderMiddleware().Handle,
 		AuthMiddleware:        middleware.NewAuthMiddleware(rcli).Handle,
 		RedisCli:              rcli,
-		EmailCli:              opemail.NewEmailConfig(c.Email.SMTPHost, c.Email.Username, c.Email.Password, c.Email.SMTPPort),
+		EmailCli:              opemail.NewEmailConfigs(emailConfs),
 		TitanCli:              tcli,
 		CaptchaFactory:        opcaptcha.CreateFactory(c.ResourcePath, cconf),
 	}

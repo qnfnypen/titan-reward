@@ -116,6 +116,8 @@ func (l *GetVerifyCodeLogic) sendCodeEmail(code, lang string, email ...string) e
 		return fmt.Errorf("template execute verify_code of email error: %w", err)
 	}
 
-	from := fmt.Sprintf("Titan Network <%s>", l.svcCtx.Config.Email.Username)
-	return l.svcCtx.EmailCli.SendEmail(subject, from, "", sendBody, "text/html", email...)
+	emailCli := l.svcCtx.EmailCli()
+
+	from := fmt.Sprintf("Titan Network <%s>", emailCli.User)
+	return emailCli.SendEmail(subject, from, "", sendBody, "text/html", email...)
 }

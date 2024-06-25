@@ -31,10 +31,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestGetBalance(t *testing.T) {
+	// addr := "titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e"
 	addr := "titan1jr4def3jn7a6x2kn7klt638w9xfuxuf8zjala7"
-
-	t.Log(titanCli.account.Address(titanCli.addressPrefix))
-	t.Log(titanCli.account.PubKey())
 
 	balance, err := titanCli.GetBalance(context.Background(), addr)
 	if err != nil {
@@ -67,9 +65,10 @@ func TestQueryValidators(t *testing.T) {
 }
 
 func TestSendCoin(t *testing.T) {
-	addr := "titan128pqwynnyu66ujkjsepv08s5adaqym8k5p6um7"
+	// addr := "titan128pqwynnyu66ujkjsepv08s5adaqym8k5p6um7"
+	addr := "titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e"
 
-	err := titanCli.SendCoin(context.Background(), addr, "100")
+	err := titanCli.SendCoin(context.Background(), addr, "100000")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -169,4 +168,17 @@ func TestQueryDelegation(t *testing.T) {
 	}
 
 	t.Log(resp)
+}
+
+func TestUnbondingDelegations(t *testing.T) {
+	addr := "titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e"
+
+	resp, err := titanCli.UnbondingDelegations(context.Background(), addr, 0, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, v := range resp {
+		t.Log(v)
+	}
 }
