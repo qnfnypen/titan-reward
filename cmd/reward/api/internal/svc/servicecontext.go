@@ -3,6 +3,7 @@ package svc
 import (
 	"time"
 
+	config2 "github.com/TestsLing/aj-captcha-go/config"
 	"github.com/jinzhu/copier"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/config"
 	"github.com/qnfnypen/titan-reward/cmd/reward/api/internal/middleware"
@@ -59,6 +60,11 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		panic(err)
 	}
 
+	cconf := &config2.RedisConfig{
+		DBAddress:  []string{c.Redis.Host},
+		DBPassWord: c.Redis.Pass,
+	}
+
 	return &ServiceContext{
 		Config:                c,
 		UserModel:             model.NewUserModel(conn, c.Mysql.CacheRedis),
@@ -70,6 +76,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		RedisCli:              rcli,
 		EmailCli:              opemail.NewEmailConfig(c.Email.SMTPHost, c.Email.Username, c.Email.Password, c.Email.SMTPPort),
 		TitanCli:              tcli,
-		CaptchaFactory:        opcaptcha.CreateFactory(c.ResourcePath),
+		CaptchaFactory:        opcaptcha.CreateFactory(c.ResourcePath, cconf),
 	}
 }

@@ -9,7 +9,7 @@ import (
 )
 
 // CreateFactory 创建人机验证的工厂方法
-func CreateFactory(rp string) *service.CaptchaServiceFactory {
+func CreateFactory(rp string, redisConf *config.RedisConfig) *service.CaptchaServiceFactory {
 	// 水印配置
 	clickWordConfig := &config.ClickWordConfig{
 		FontSize: 25,
@@ -25,11 +25,15 @@ func CreateFactory(rp string) *service.CaptchaServiceFactory {
 		rp = constant.DefaultResourceRoot
 	}
 	// 滑动模块配置
-	blockPuzzleConfig := &config.BlockPuzzleConfig{Offset: 100}
+	blockPuzzleConfig := &config.BlockPuzzleConfig{Offset: 200}
 	configcap := config.BuildConfig(constant.MemCacheKey, rp, watermarkConfig,
 		clickWordConfig, blockPuzzleConfig, 2*60)
 	factory := service.NewCaptchaServiceFactory(configcap)
-	factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20))
+	if redisConf == nil {
+		factory.RegisterCache(constant.MemCacheKey, service.NewMemCacheService(20))
+	} else {
+		factory.RegisterCache(constant.RedisCacheKey, service.NewConfigRedisCacheService(redisConf.DBAddress, redisConf.DBUserName, redisConf.DBPassWord, redisConf.EnableCluster, redisConf.DB))
+	}
 	factory.RegisterService(constant.ClickWordCaptcha, service.NewClickWordCaptchaService(factory))
 	factory.RegisterService(constant.BlockPuzzleCaptcha, service.NewBlockPuzzleCaptchaService(factory))
 
