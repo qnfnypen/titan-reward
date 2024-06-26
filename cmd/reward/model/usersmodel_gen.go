@@ -37,6 +37,7 @@ type (
 	Users struct {
 		Id                     int64   `db:"id"`
 		Username               string  `db:"username"`                 // 用户名称,邮箱/钱包地址
+		PassHash               string  `db:"pass_hash"`                // 登陆密码
 		Role                   int64   `db:"role"`                     // 2的时候为KOL
 		ClosedTestReward       float64 `db:"closed_test_reward"`       // 封测奖励
 		HuygensReward          float64 `db:"huygens_reward"`           // 惠更斯测试网节点收益
@@ -91,14 +92,14 @@ func (m *defaultUsersModel) FindOneByUsername(ctx context.Context, username stri
 }
 
 func (m *defaultUsersModel) Insert(ctx context.Context, data *Users) (sql.Result, error) {
-	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, usersRowsExpectAutoSet)
-	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.Role, data.ClosedTestReward, data.HuygensReward, data.HuygensReferralReward, data.HerschelReward, data.HerschelReferralReward, data.Reward, data.ReferralReward, data.FromKolBonusReward)
+	query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, usersRowsExpectAutoSet)
+	ret, err := m.conn.ExecCtx(ctx, query, data.Username, data.PassHash, data.Role, data.ClosedTestReward, data.HuygensReward, data.HuygensReferralReward, data.HerschelReward, data.HerschelReferralReward, data.Reward, data.ReferralReward, data.FromKolBonusReward)
 	return ret, err
 }
 
 func (m *defaultUsersModel) Update(ctx context.Context, newData *Users) error {
 	query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, usersRowsWithPlaceHolder)
-	_, err := m.conn.ExecCtx(ctx, query, newData.Username, newData.Role, newData.ClosedTestReward, newData.HuygensReward, newData.HuygensReferralReward, newData.HerschelReward, newData.HerschelReferralReward, newData.Reward, newData.ReferralReward, newData.FromKolBonusReward, newData.Id)
+	_, err := m.conn.ExecCtx(ctx, query, newData.Username, newData.PassHash, newData.Role, newData.ClosedTestReward, newData.HuygensReward, newData.HuygensReferralReward, newData.HerschelReward, newData.HerschelReferralReward, newData.Reward, newData.ReferralReward, newData.FromKolBonusReward, newData.Id)
 	return err
 }
 

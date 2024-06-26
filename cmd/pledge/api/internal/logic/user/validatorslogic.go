@@ -72,7 +72,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 			return nil, gzErr
 		}
 	}
-	for _, v := range validators {
+	for i, v := range validators {
 		token := v.Tokens.BigInt()
 		info := types.ValidatorInfo{}
 		info.Name = v.OperatorAddress
@@ -85,13 +85,14 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 			}
 			token = del.DelegationResponse.Balance.Amount.BigInt()
 		}
+		info.ID = int64(int(req.Page*req.Size) + i + 1)
 		info.StakedTokens = getTTNT(token)
 		// rf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.DelegatorShares.BigInt()), new(big.Float).SetInt(v.Tokens.BigInt())).Float64()
 		// info.Rate = rf
 		info.Rate = comctx.getRate(l.ctx)
 		vpf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.Tokens.BigInt()), new(big.Float).SetInt(tokens)).Float64()
 		info.VotingPower, _ = decimal.NewFromFloat(vpf).Round(4).Mul(decimal.NewFromInt(100)).Float64()
-		info.UnbindingPeriod = v.UnbondingTime.Unix()
+		info.UnbindingPeriod = comctx.convertTimestamp(v.UnbondingTime.Unix())
 		dc, _ := decimal.NewFromString(v.Commission.Rate.String())
 		info.HandlingFees, _ = dc.Round(4).Mul(decimal.NewFromInt(100)).Float64()
 		resp.List = append(resp.List, info)

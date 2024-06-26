@@ -131,7 +131,7 @@ func TestQueryDelgatorVlidators(t *testing.T) {
 	for _, v := range list {
 		t.Log(v.Tokens.BigIntMut())
 		t.Log(v.DelegatorShares)
-		t.Log(v.UnbondingTime)
+		t.Log(v.UnbondingTime.Unix())
 		t.Log(v.Commission.Rate)
 	}
 

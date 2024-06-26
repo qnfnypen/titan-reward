@@ -44,30 +44,33 @@ type ReDelegateReq struct {
 }
 
 type UnbindingDelegateInfo struct {
+	ID              int64   `json:"id"`
 	Image           string  `json:"image"`           // 验证者头像
 	Name            string  `json:"name"`            // 验证者名称
 	Validator       string  `json:"validator"`       // 验证者
 	Tokens          float64 `json:"tokens"`          // 数量
-	UnbindingPeriod int64   `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
+	UnbindingPeriod float64 `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
 	Height          int64   `json:"height"`          // 高度
 }
 
 type UserInfo struct {
-	TotalToken     float64 `json:"totalToken"`     // 总数
-	AvailableToken float64 `json:"availableToken"` // 可用余额
-	StakedToken    float64 `json:"stakedToken"`    // 质押数量
-	Reward         float64 `json:"reward"`         // 质押收益
-	UnstakedToken  float64 `json:"unstakedToken"`  // 锁仓质押
+	TotalToken     float64  `json:"totalToken"`     // 总数
+	AvailableToken float64  `json:"availableToken"` // 可用余额
+	StakedToken    float64  `json:"stakedToken"`    // 质押数量
+	Reward         float64  `json:"reward"`         // 质押收益
+	UnstakedToken  float64  `json:"unstakedToken"`  // 锁仓质押
+	ValidatorAddr  []string `json:"validatorAddr"`  // 质押验证者地址
 }
 
 type ValidatorInfo struct {
+	ID              int64   `json:"id"`
 	Image           string  `json:"image"`           // 验证者头像
 	Name            string  `json:"name"`            // 验证者名称
 	Validator       string  `json:"validator"`       // 验证者
 	StakedTokens    float64 `json:"stakedTokens"`    // 总质押量
 	Rate            float64 `json:"rate"`            // 预期年利率
 	VotingPower     float64 `json:"votingPower"`     // 投票权
-	UnbindingPeriod int64   `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
+	UnbindingPeriod float64 `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
 	HandlingFees    float64 `json:"handlingFees"`    // 质押手续费
 }
 

@@ -77,7 +77,15 @@ func (l *InfoLogic) Info() (resp *types.UserInfo, err error) {
 	unStakedTokensFloat := new(big.Float).SetInt(unStakedTokens.Amount.BigInt())
 	resp.UnstakedToken, _ = unStakedTokensFloat.Quo(unStakedTokensFloat, big.NewFloat(math.Pow10(6))).Float64()
 	resp.UnstakedToken, _ = decimal.NewFromFloat(resp.UnstakedToken).Round(4).Float64()
-	resp.TotalToken, _ = decimal.NewFromFloat(resp.AvailableToken + resp.StakedToken + resp.Reward + resp.UnstakedToken).Round(4).Float64()
+	resp.TotalToken, _ = decimal.NewFromFloat(resp.AvailableToken + resp.StakedToken + resp.UnstakedToken).Round(4).Float64()
+	resp.ValidatorAddr = make([]string, 0)
+	// 获取质押验证者地址
+	dvs, err := l.svcCtx.TitanCli.QueryDelgatorVlidators(l.ctx, wallet, 0, 0)
+	if err == nil {
+		for _, v := range dvs {
+			resp.ValidatorAddr = append(resp.ValidatorAddr, v.OperatorAddress)
+		}
+	}
 
 	return resp, nil
 }

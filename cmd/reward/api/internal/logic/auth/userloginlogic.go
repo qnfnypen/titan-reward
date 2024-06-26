@@ -14,6 +14,7 @@ import (
 	"github.com/qnfnypen/titan-reward/common/myerror"
 	"github.com/qnfnypen/titan-reward/common/opcheck"
 	"github.com/rs/xid"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
@@ -60,6 +61,31 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 	user.CreatedAt = time.Now().Unix()
 
 	switch {
+	case req.Password != "":
+		user.Email = req.Username
+		eu, err := l.svcCtx.ExplorerUserModel.FindOneByUsername(l.ctx, user.Email)
+		if err != nil {
+			gzErr.LogErr = merror.NewError(fmt.Errorf("get user's info of explorer error:%w", err)).Error()
+			return nil, gzErr
+		}
+		if err = bcrypt.CompareHashAndPassword([]byte(eu.PassHash), []byte(req.Password)); err != nil {
+			return nil, gzErr
+		}
+		// 判断用户是否存在，存在则直接返回
+		info, err := l.svcCtx.UserModel.FindOneByEmail(l.ctx, req.Username)
+		switch err {
+		case model.ErrNotFound:
+		case nil:
+			resp.Token, err = comctx.generateToken(l.ctx, info.Id, info.Uuid)
+			if err != nil {
+				gzErr.LogErr = merror.NewError(fmt.Errorf("generate token error:%w", err)).Error()
+				return nil, gzErr
+			}
+			return resp, nil
+		default:
+			gzErr.LogErr = merror.NewError(err).Error()
+			return nil, gzErr
+		}
 	case req.Sign != "":
 		user.WalletAddr = req.Username
 		recoverAddress, err := opcheck.VerifyAddrSign(fmt.Sprintf("TitanNetWork(%s)", nonce), req.Sign)
@@ -88,12 +114,12 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 		}
 	case req.VerifyCode != "":
 		user.Email = req.Username
-		if req.VerifyCode != "666666" {
-			if req.VerifyCode != nonce {
-				gzErr.RespErr = myerror.GetMsg(myerror.AddrSignOrCodeErrCode, lan)
-				return nil, gzErr
-			}
+		// if req.VerifyCode != "666666" {
+		if req.VerifyCode != nonce {
+			gzErr.RespErr = myerror.GetMsg(myerror.AddrSignOrCodeErrCode, lan)
+			return nil, gzErr
 		}
+		// }
 		// 判断用户是否存在，存在则直接返回
 		info, err := l.svcCtx.UserModel.FindOneByEmail(l.ctx, req.Username)
 		switch err {

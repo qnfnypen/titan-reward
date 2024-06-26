@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS `users` (
     `id` bigint NOT NULL AUTO_INCREMENT,
     `username` varchar(255) NOT NULL DEFAULT '' COMMENT '用户名称,邮箱/钱包地址',
+    `pass_hash` varchar(255) NOT NULL DEFAULT '' COMMENT '登陆密码',
     `role` tinyint NOT NULL DEFAULT '0' COMMENT '2的时候为KOL',
     `closed_test_reward` decimal(14,6) NOT NULL DEFAULT '0' COMMENT '封测奖励',
     `huygens_reward` decimal(14,6) NOT NULL DEFAULT '0' COMMENT '惠更斯测试网节点收益',

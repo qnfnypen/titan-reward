@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"unsafe"
 
 	"github.com/qnfnypen/gzocomm/merror"
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/svc"
@@ -30,7 +31,8 @@ func NewGetUnbindingDelegateLogic(ctx context.Context, svcCtx *svc.ServiceContex
 // GetUnbindingDelegate 实现 获取进行中的解除质押
 func (l *GetUnbindingDelegateLogic) GetUnbindingDelegate() (resp []types.UnbindingDelegateInfo, err error) {
 	var (
-		gzErr merror.GzErr
+		gzErr  merror.GzErr
+		comctx = (*sctx)(unsafe.Pointer(l.svcCtx))
 	)
 	resp = make([]types.UnbindingDelegateInfo, 0)
 
@@ -44,14 +46,15 @@ func (l *GetUnbindingDelegateLogic) GetUnbindingDelegate() (resp []types.Unbindi
 		return nil, gzErr
 	}
 
-	for _, v := range des {
-		for _, vv := range v.Entries {
+	for i, v := range des {
+		for ii, vv := range v.Entries {
 			info := types.UnbindingDelegateInfo{}
+			info.ID = int64((i+1)*ii + 1)
 			info.Name = v.ValidatorAddress
 			info.Validator = v.ValidatorAddress
 			info.Height = vv.CreationHeight
 			info.Tokens = getTTNT(vv.Balance.BigInt())
-			info.UnbindingPeriod = vv.CompletionTime.Unix()
+			info.UnbindingPeriod = comctx.convertTimestamp(vv.CompletionTime.Unix())
 
 			resp = append(resp, info)
 		}

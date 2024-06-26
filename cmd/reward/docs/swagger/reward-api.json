@@ -374,6 +374,10 @@
         "verifyCode": {
           "type": "string",
           "description": " 邮箱验证码"
+        },
+        "password": {
+          "type": "string",
+          "description": " 邮箱密码"
         }
       },
       "title": "LoginReq",

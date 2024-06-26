@@ -6,9 +6,11 @@ import (
 	"math/big"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/svc"
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/types"
+	"github.com/shopspring/decimal"
 )
 
 var defaultRate = 14.52
@@ -38,4 +40,20 @@ func (s *sctx) getRate(ctx context.Context) float64 {
 	}
 
 	return defaultRate
+}
+
+// convertTimestamp 将时间戳转换为剩余天数
+func (s *sctx) convertTimestamp(ts int64) float64 {
+	tnum := s.Config.TitanClientConf.UnbindTime
+
+	if ts == 0 {
+		return tnum
+	}
+
+	tn := time.Now().Unix()
+	if ts > tn {
+		tnum, _ = decimal.NewFromInt(ts - tn).Div(decimal.NewFromInt(86400)).Round(1).Float64()
+	}
+
+	return tnum
 }

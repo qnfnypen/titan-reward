@@ -41,6 +41,7 @@ type LoginReq struct {
 	Username   string `json:"username"`            // 邮箱或钱包地址
 	Sign       string `json:"sign,optional"`       // 钱包签名
 	VerifyCode string `json:"verifyCode,optional"` // 邮箱验证码
+	Password   string `json:"password,optional"`   // 邮箱密码
 }
 
 type LoginResp struct {
