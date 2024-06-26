@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"unsafe"
 
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/qnfnypen/gzocomm/merror"
@@ -34,7 +35,8 @@ func NewValidatorsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Valida
 // Validators 实现 获取验证者信息
 func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Validators, err error) {
 	var (
-		gzErr merror.GzErr
+		gzErr  merror.GzErr
+		comctx = (*sctx)(unsafe.Pointer(l.svcCtx))
 	)
 	resp = new(types.Validators)
 	resp.List = make([]types.ValidatorInfo, 0)
@@ -86,6 +88,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 		info.StakedTokens = getTTNT(token)
 		// rf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.DelegatorShares.BigInt()), new(big.Float).SetInt(v.Tokens.BigInt())).Float64()
 		// info.Rate = rf
+		info.Rate = comctx.getRate(l.ctx)
 		vpf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.Tokens.BigInt()), new(big.Float).SetInt(tokens)).Float64()
 		info.VotingPower, _ = decimal.NewFromFloat(vpf).Round(4).Mul(decimal.NewFromInt(100)).Float64()
 		info.UnbindingPeriod = v.UnbondingTime.Unix()

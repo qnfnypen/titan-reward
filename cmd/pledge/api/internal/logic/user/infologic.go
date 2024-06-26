@@ -77,7 +77,7 @@ func (l *InfoLogic) Info() (resp *types.UserInfo, err error) {
 	unStakedTokensFloat := new(big.Float).SetInt(unStakedTokens.Amount.BigInt())
 	resp.UnstakedToken, _ = unStakedTokensFloat.Quo(unStakedTokensFloat, big.NewFloat(math.Pow10(6))).Float64()
 	resp.UnstakedToken, _ = decimal.NewFromFloat(resp.UnstakedToken).Round(4).Float64()
-	resp.TotalToken = resp.AvailableToken + resp.StakedToken + resp.Reward + resp.UnstakedToken
+	resp.TotalToken, _ = decimal.NewFromFloat(resp.AvailableToken + resp.StakedToken + resp.Reward + resp.UnstakedToken).Round(4).Float64()
 
 	return resp, nil
 }

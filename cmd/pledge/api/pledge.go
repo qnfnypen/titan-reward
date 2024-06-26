@@ -10,6 +10,7 @@ import (
 
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/config"
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/handler"
+	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/job"
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -29,6 +30,7 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
+	job.StartCron(ctx)
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()

@@ -89,7 +89,7 @@ func TestGetRewards(t *testing.T) {
 }
 
 func TestGetDelegations(t *testing.T) {
-	addr := "titan1rlhtz5lyncsq4s52a2mnpftcnh5ttsy30vft80"
+	addr := "titan1zr7yuhghh2gtdrqcy7dzc06rhdcfmd2rud4d8f"
 
 	coins, err := titanCli.GetDelegations(context.Background(), addr)
 	if err != nil {
