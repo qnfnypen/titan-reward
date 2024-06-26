@@ -15,7 +15,6 @@ import (
 	"github.com/rs/xid"
 
 	"github.com/zeromicro/go-zero/core/logx"
-	"github.com/zeromicro/go-zero/core/stores/sqlx"
 )
 
 // UserLoginLogic 用户登陆
@@ -71,37 +70,39 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 	}
 
 	// 判断用户是否存在
-	info, err := l.svcCtx.UserModel.FindOneByWallet(l.ctx, nil, req.Wallet)
-	switch err {
-	case model.ErrNotFound:
-	case nil:
-		resp.Token, err = comctx.generateToken(l.ctx, info.Id, info.Uuid, info.Wallet)
-		if err != nil {
-			gzErr.LogErr = merror.NewError(fmt.Errorf("generate token error:%w", err)).Error()
-			return nil, gzErr
-		}
-		return resp, nil
-	default:
-		gzErr.LogErr = merror.NewError(err).Error()
-		return nil, gzErr
-	}
+	// info, err := l.svcCtx.UserModel.FindOneByWallet(l.ctx, nil, req.Wallet)
+	// switch err {
+	// case model.ErrNotFound:
+	// case nil:
+	// 	resp.Token, err = comctx.generateToken(l.ctx, info.Id, info.Uuid, info.Wallet)
+	// 	if err != nil {
+	// 		gzErr.LogErr = merror.NewError(fmt.Errorf("generate token error:%w", err)).Error()
+	// 		return nil, gzErr
+	// 	}
+	// 	return resp, nil
+	// default:
+	// 	gzErr.LogErr = merror.NewError(err).Error()
+	// 	return nil, gzErr
+	// }
 
 	// 插入数据并生成token
-	err = l.svcCtx.UserModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
-		res, err := l.svcCtx.UserModel.Insert(ctx, session, user)
-		if err != nil {
-			return fmt.Errorf("insert user's info error:%w", err)
-		}
-		uid, _ := res.LastInsertId()
-		resp.Token, err = comctx.generateToken(ctx, uid, user.Uuid, user.Wallet)
-		if err != nil {
-			return fmt.Errorf("generate token error:%w", err)
-		}
+	// err = l.svcCtx.UserModel.Trans(l.ctx, func(ctx context.Context, session sqlx.Session) error {
+	// 	res, err := l.svcCtx.UserModel.Insert(ctx, session, user)
+	// 	if err != nil {
+	// 		return fmt.Errorf("insert user's info error:%w", err)
+	// 	}
+	// 	uid, _ := res.LastInsertId()
+	// 	resp.Token, err = comctx.generateToken(ctx, 0, user.Uuid, user.Wallet)
+	// 	if err != nil {
+	// 		return fmt.Errorf("generate token error:%w", err)
+	// 	}
 
-		return nil
-	})
+	// 	return nil
+	// })
+	resp.Token, err = comctx.generateToken(l.ctx, 0, user.Uuid, user.Wallet)
 	if err != nil {
-		gzErr.LogErr = merror.NewError(err).Error()
+		gzErr.LogErr = merror.NewError(fmt.Errorf("generate token error:%w", err)).Error()
+		return nil, gzErr
 	}
 
 	return resp, nil

@@ -10,12 +10,6 @@ Log:
   TimeFormat: "2006-01-02 15:04:05"
   KeepDays: 30
 
-Mysql:
-  DataSource: root:abcd1234@tcp(127.0.0.1:3306)/titan_pledge?charset=utf8mb4&parseTime=true&loc=Local
-  CacheRedis:
-    - Host: 127.0.0.1:6379
-      Type: node
-
 Redis:
   Host: 127.0.0.1:6379
   Pass: "123456"
