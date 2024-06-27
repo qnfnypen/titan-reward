@@ -11,7 +11,9 @@ import (
 func StartCron(sctx *svc.ServiceContext) {
 	c := cron.New(cron.WithLocation(time.Local))
 
-	c.AddFunc("@every 144m", syncRate(sctx))
+	// c.AddFunc("@every 144m", syncRate(sctx))
+	syncRateByInf(sctx)()
+	c.AddFunc("@every 4h", syncRateByInf(sctx))
 
 	c.Start()
 }

@@ -6,6 +6,10 @@ import (
 	"math"
 	"math/big"
 	"testing"
+
+	"github.com/qnfnypen/titan-reward/common/oputil"
+	"github.com/shopspring/decimal"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 var (
@@ -33,13 +37,17 @@ func TestMain(m *testing.M) {
 }
 
 func TestGetBalance(t *testing.T) {
-	// addr := "titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e"
-	addr := "titan1jr4def3jn7a6x2kn7klt638w9xfuxuf8zjala7"
+	addr := "titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e"
+	// addr := "titan1jr4def3jn7a6x2kn7klt638w9xfuxuf8zjala7"
 
 	balance, err := titanCli.GetBalance(context.Background(), addr)
 	if err != nil {
 		t.Fatal(err)
 	}
+	bi := new(big.Float).SetInt(balance.Amount.BigInt())
+	bf, _ := bi.Quo(bi, big.NewFloat(math.Pow10(6))).Float64()
+	t.Log(bf)
+	t.Log(oputil.DecRound(decimal.NewFromFloat(bf), 4, false))
 
 	t.Log(balance)
 }
@@ -195,30 +203,37 @@ func TestGetMintInflation(t *testing.T) {
 }
 
 func TestSyncRate(t *testing.T) {
-	raddr := "titan1zr7yuhghh2gtdrqcy7dzc06rhdcfmd2rud4d8f"
+	var (
+		di = new(big.Int)
+	)
 	// 获取当前时间验证者节点的总余额
-	balance, err := titanCli.GetBalance(context.Background(), raddr)
+	balance, err := titanCli.GetTotalBalance(context.Background())
 	if err != nil {
 		t.Fatal(fmt.Errorf("get balance error:%w", err))
 	}
+	t.Log(balance.Amount.BigInt())
 	// 获取通货膨胀率
 	inf, err := titanCli.GetMintInflation(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Log(inf)
 	// 获取质押总金额
-	delegate, err := titanCli.GetDelegations(context.Background(), raddr)
+	validators, err := titanCli.QueryValidators(context.Background(), 0, 0, "")
 	if err != nil {
-		t.Fatal(err)
+		logx.Error(err)
+		return
 	}
+	for _, v := range validators {
+		di.Add(di, v.Tokens.BigInt())
+	}
+	t.Log(di)
+	// 总金额为所有可用余额+所有质押金额
 	bf := new(big.Float).SetInt(balance.Amount.BigInt())
-	df := new(big.Float).SetInt(delegate.Amount.BigInt())
-	bff, _ := bf.Quo(bf, big.NewFloat(math.Pow10(10))).Float64()
-	dff, _ := bf.Quo(df, big.NewFloat(math.Pow10(10))).Float64()
-	t.Log(bff, dff, inf)
-	// bf = bf.Mul(bf, inf)
-	// bff, _ := bf.Quo(bf, df).Float64()
-	// bff, _ = decimal.NewFromFloat(bff).Round(2).Float64()
+	df := new(big.Float).SetInt(di)
+	bf.Mul(bf, inf)
+	bff, _ := bf.Quo(bf, df).Float64()
+	bff, _ = decimal.NewFromFloat(bff).Round(4).Float64()
 
-	// t.Log(bff)
+	t.Log(bff)
 }

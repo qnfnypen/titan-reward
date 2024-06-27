@@ -10,6 +10,7 @@ import (
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/svc"
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/types"
 	"github.com/qnfnypen/titan-reward/common/myerror"
+	"github.com/qnfnypen/titan-reward/common/oputil"
 	"github.com/shopspring/decimal"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -50,7 +51,7 @@ func (l *InfoLogic) Info() (resp *types.UserInfo, err error) {
 	}
 	balanceFloat := new(big.Float).SetInt(balance.Amount.BigInt())
 	resp.AvailableToken, _ = balanceFloat.Quo(balanceFloat, big.NewFloat(math.Pow10(6))).Float64()
-	resp.AvailableToken, _ = decimal.NewFromFloat(resp.AvailableToken).Round(4).Float64()
+	resp.AvailableToken = oputil.DecRound(decimal.NewFromFloat(resp.AvailableToken), 4, false)
 	// 获取质押token的数量
 	stakedTokens, err := l.svcCtx.TitanCli.GetDelegations(l.ctx, wallet)
 	if err != nil {

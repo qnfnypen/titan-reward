@@ -23,7 +23,6 @@ TitanClientConf:
   KeyDirectory: /Users/hanchan/.titan
   Denomination: uttnt
   UnbindTime: 3
-  RateAddr: titan1zr7yuhghh2gtdrqcy7dzc06rhdcfmd2rud4d8f
 
 Auth:
   AccessSecret: 

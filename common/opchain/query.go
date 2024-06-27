@@ -3,7 +3,6 @@ package opchain
 import (
 	"context"
 	"fmt"
-	"log"
 	pmath "math"
 	"math/big"
 
@@ -78,9 +77,7 @@ func (tc *TitanClient) GetRewards(ctx context.Context, addr string) (*big.Float,
 	}
 
 	for _, v := range resp.Rewards {
-		log.Println(v.ValidatorAddress)
 		for _, vv := range v.Reward {
-			log.Println(vv.Amount.BigInt(), vv.Denom)
 			bf := new(big.Float).SetInt(vv.Amount.BigInt())
 			bf = bf.Quo(bf, big.NewFloat(pmath.Pow10(18)))
 			rewards = rewards.Add(rewards, bf)
@@ -108,6 +105,25 @@ func (tc *TitanClient) GetBalance(ctx context.Context, addr string) (sdk.Coin, e
 	for _, v := range queryResp.GetBalances() {
 		balance = balance.Add(v)
 	}
+	return balance, nil
+}
+
+// GetTotalBalance 获取链上所有金额
+func (tc *TitanClient) GetTotalBalance(ctx context.Context) (sdk.Coin, error) {
+	var balance = sdk.NewCoin(tc.denomination, math.NewInt(0))
+
+	queryClient := bank.NewQueryClient(tc.cli.Context())
+
+	in := &bank.QueryTotalSupplyRequest{}
+	resp, err := queryClient.TotalSupply(ctx, in)
+	if err != nil {
+		return balance, fmt.Errorf("get total supply of all coins error:%w", err)
+	}
+
+	for _, v := range resp.GetSupply() {
+		balance = balance.Add(v)
+	}
+
 	return balance, nil
 }
 

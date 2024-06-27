@@ -28,6 +28,5 @@ type Config struct {
 		KeyDirectory       string
 		Denomination       string
 		UnbindTime         float64
-		RateAddr           string
 	}
 }
