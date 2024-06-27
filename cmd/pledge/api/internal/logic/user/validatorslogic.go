@@ -92,7 +92,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 		info.Rate = comctx.getRate(l.ctx)
 		vpf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.Tokens.BigInt()), new(big.Float).SetInt(tokens)).Float64()
 		info.VotingPower, _ = decimal.NewFromFloat(vpf).Round(4).Mul(decimal.NewFromInt(100)).Float64()
-		info.UnbindingPeriod = comctx.convertTimestamp(v.UnbondingTime.Unix())
+		info.UnbindingPeriod = l.svcCtx.Config.TitanClientConf.UnbindTime
 		dc, _ := decimal.NewFromString(v.Commission.Rate.String())
 		info.HandlingFees, _ = dc.Round(4).Mul(decimal.NewFromInt(100)).Float64()
 		resp.List = append(resp.List, info)

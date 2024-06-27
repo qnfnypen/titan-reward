@@ -2,6 +2,8 @@ package opchain
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"math/big"
 	"testing"
 )
@@ -181,4 +183,42 @@ func TestUnbondingDelegations(t *testing.T) {
 	for _, v := range resp {
 		t.Log(v)
 	}
+}
+
+func TestGetMintInflation(t *testing.T) {
+	inf, err := titanCli.GetMintInflation(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(inf)
+}
+
+func TestSyncRate(t *testing.T) {
+	raddr := "titan1zr7yuhghh2gtdrqcy7dzc06rhdcfmd2rud4d8f"
+	// 获取当前时间验证者节点的总余额
+	balance, err := titanCli.GetBalance(context.Background(), raddr)
+	if err != nil {
+		t.Fatal(fmt.Errorf("get balance error:%w", err))
+	}
+	// 获取通货膨胀率
+	inf, err := titanCli.GetMintInflation(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 获取质押总金额
+	delegate, err := titanCli.GetDelegations(context.Background(), raddr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bf := new(big.Float).SetInt(balance.Amount.BigInt())
+	df := new(big.Float).SetInt(delegate.Amount.BigInt())
+	bff, _ := bf.Quo(bf, big.NewFloat(math.Pow10(10))).Float64()
+	dff, _ := bf.Quo(df, big.NewFloat(math.Pow10(10))).Float64()
+	t.Log(bff, dff, inf)
+	// bf = bf.Mul(bf, inf)
+	// bff, _ := bf.Quo(bf, df).Float64()
+	// bff, _ = decimal.NewFromFloat(bff).Round(2).Float64()
+
+	// t.Log(bff)
 }

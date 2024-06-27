@@ -12,6 +12,8 @@ const (
 	CaptchaErrCode
 	// LoginCodeErrCode 用户登陆失败
 	LoginCodeErrCode
+	// EmailOrPasswordErrCode 邮箱或密码错误
+	EmailOrPasswordErrCode
 	// ParamErrCode 参数错误
 	ParamErrCode
 	// AddrSignOrCodeErrCode 钱包地址签名或邮箱验证码错误

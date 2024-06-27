@@ -12,6 +12,7 @@ import (
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	mint "github.com/cosmos/cosmos-sdk/x/mint/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -208,4 +209,21 @@ func (tc *TitanClient) UnbondingDelegations(ctx context.Context, delegatorAddr s
 	}
 
 	return resp.UnbondingResponses, nil
+}
+
+// GetMintInflation 获取通货膨胀率
+func (tc *TitanClient) GetMintInflation(ctx context.Context) (*big.Float, error) {
+	queryClient := mint.NewQueryClient(tc.cli.Context())
+
+	in := &mint.QueryInflationRequest{}
+
+	resp, err := queryClient.Inflation(ctx, in)
+	if err != nil {
+		return nil, fmt.Errorf("Inflation returns the current minting inflation value error:%w", err)
+	}
+
+	bf := new(big.Float).SetInt(resp.Inflation.BigInt())
+	bf = bf.Quo(bf, big.NewFloat(pmath.Pow10(18)))
+
+	return bf, nil
 }

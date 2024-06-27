@@ -62,6 +62,7 @@ func (l *UserLoginLogic) UserLogin(req *types.LoginReq) (resp *types.LoginResp, 
 
 	switch {
 	case req.Password != "":
+		gzErr.RespErr = myerror.GetMsg(myerror.EmailOrPasswordErrCode, lan)
 		user.Email = req.Username
 		eu, err := l.svcCtx.ExplorerUserModel.FindOneByUsername(l.ctx, user.Email)
 		if err != nil {

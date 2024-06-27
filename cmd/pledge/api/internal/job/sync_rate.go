@@ -17,6 +17,37 @@ var (
 	ctx = context.Background()
 )
 
+// syncRateByInf 通过通货膨胀率计算验证者预期年收益
+func syncRateByInf(sctx *svc.ServiceContext) func() {
+	return func() {
+		var raddr = sctx.Config.TitanClientConf.RateAddr
+		// 获取当前时间验证者节点的总余额
+		balance, err := sctx.TitanCli.GetBalance(ctx, raddr)
+		if err != nil {
+			logx.Error(fmt.Errorf("get balance error:%w", err))
+			return
+		}
+		// 获取通货膨胀率
+		inf, err := sctx.TitanCli.GetMintInflation(ctx)
+		if err != nil {
+			logx.Error(err)
+			return
+		}
+		// 获取质押总金额
+		delegate, err := sctx.TitanCli.GetDelegations(ctx, raddr)
+		if err != nil {
+			logx.Error(err)
+			return
+		}
+		bf := new(big.Float).SetInt(balance.Amount.BigInt())
+		df := new(big.Float).SetInt(delegate.Amount.BigInt())
+		bf = bf.Mul(bf, inf)
+		bff, _ := bf.Quo(bf, df).Float64()
+		bff, _ = decimal.NewFromFloat(bff).Round(2).Float64()
+		sctx.RedisCli.Set(types.RateKey, fmt.Sprintf("%v", bff))
+	}
+}
+
 // syncRate 同步验证者预期年收益
 func syncRate(sctx *svc.ServiceContext) func() {
 	return func() {
@@ -50,6 +81,7 @@ func getLastDelegateInfo(sctx *svc.ServiceContext) (bool, *big.Float, *big.Float
 	var (
 		flag      = true
 		dcf, dcrf *big.Float
+		raddr     = sctx.Config.TitanClientConf.RateAddr
 	)
 
 	// 获取质押的金额
@@ -57,7 +89,7 @@ func getLastDelegateInfo(sctx *svc.ServiceContext) (bool, *big.Float, *big.Float
 	if err != nil || dc == "" {
 		flag = false
 		// 没有获取到或者为空，则获取当前的质押金额进行存储
-		dcs, err := sctx.TitanCli.GetDelegations(ctx, types.TitanRateAddr)
+		dcs, err := sctx.TitanCli.GetDelegations(ctx, raddr)
 		if err != nil {
 			return false, nil, nil, merror.NewError(fmt.Errorf("get delegation's coins error:%w", err))
 		}
@@ -91,7 +123,7 @@ func getLastDelegateInfo(sctx *svc.ServiceContext) (bool, *big.Float, *big.Float
 }
 
 func getCurrentRewards(sctx *svc.ServiceContext) (*big.Float, error) {
-	dcrf, err := sctx.TitanCli.GetRewards(ctx, types.TitanRateAddr)
+	dcrf, err := sctx.TitanCli.GetRewards(ctx, sctx.Config.TitanClientConf.RateAddr)
 	if err != nil {
 		return nil, merror.NewError(fmt.Errorf("get delegation's rewards error:%w", err))
 	}
