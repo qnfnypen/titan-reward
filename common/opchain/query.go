@@ -149,6 +149,22 @@ func (tc *TitanClient) QueryValidators(ctx context.Context, page, size uint64, k
 	return resp.GetValidators(), nil
 }
 
+// QueryValidator 查询验证者信息
+func (tc *TitanClient) QueryValidator(ctx context.Context, addr string) (staking.Validator, error) {
+	queryClient := staking.NewQueryClient(tc.cli.Context())
+
+	in := &staking.QueryValidatorRequest{
+		ValidatorAddr: addr,
+	}
+
+	resp, err := queryClient.Validator(ctx, in)
+	if err != nil {
+		return staking.Validator{}, fmt.Errorf("get validators error:%w", err)
+	}
+
+	return resp.Validator, nil
+}
+
 // QueryDelgatorVlidators 获取质押验证人
 func (tc *TitanClient) QueryDelgatorVlidators(ctx context.Context, delegatorAddr string, page, size uint64) ([]staking.Validator, error) {
 	queryClient := staking.NewQueryClient(tc.cli.Context())

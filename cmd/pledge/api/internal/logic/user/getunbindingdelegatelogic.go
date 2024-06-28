@@ -50,8 +50,14 @@ func (l *GetUnbindingDelegateLogic) GetUnbindingDelegate() (resp []types.Unbindi
 		for ii, vv := range v.Entries {
 			info := types.UnbindingDelegateInfo{}
 			info.ID = int64((i+1)*ii + 1)
-			info.Name = v.ValidatorAddress
 			info.Validator = v.ValidatorAddress
+			// 获取验证者节点名称
+			vinfo, err := l.svcCtx.TitanCli.QueryValidator(l.ctx, v.ValidatorAddress)
+			if err == nil {
+				info.Name = vinfo.Description.Moniker
+			} else {
+				info.Name = v.ValidatorAddress
+			}
 			info.Height = vv.CreationHeight
 			info.Tokens = getTTNT(vv.Balance.BigInt())
 			info.UnbindingPeriod = comctx.convertTimestamp(vv.CompletionTime.Unix())

@@ -75,7 +75,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 	for i, v := range validators {
 		token := v.Tokens.BigInt()
 		info := types.ValidatorInfo{}
-		info.Name = v.OperatorAddress
+		info.Name = v.Description.Moniker
 		info.Validator = v.OperatorAddress
 		if req.Kind == 1 {
 			del, err := l.svcCtx.TitanCli.QueryDelegation(l.ctx, wallet, v.OperatorAddress)
