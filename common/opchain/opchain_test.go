@@ -76,9 +76,12 @@ func TestQueryValidators(t *testing.T) {
 
 func TestSendCoin(t *testing.T) {
 	// addr := "titan128pqwynnyu66ujkjsepv08s5adaqym8k5p6um7"
-	addr := "titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e"
+	addr := "titan1enzgg6yx34hyk58qlrmh6f64x39qeqas23kvlk"
+	coin := decimal.NewFromFloat(34028.83434).Mul(decimal.NewFromFloat(math.Pow10(6))).String()
+	// 162.5048233
+	t.Log(coin)
 
-	err := titanCli.SendCoin(context.Background(), addr, "100000")
+	err := titanCli.SendCoin(context.Background(), addr, coin)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -47,4 +47,7 @@ const (
 	CancelUnDelegateTokenErrCode
 	// WithdrawRewardsErrCode 提取收益错误
 	WithdrawRewardsErrCode
+
+	// GetImageErrCode 获取图片失败
+	GetImageErrCode
 )

@@ -1,9 +1,13 @@
 package user
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"math/big"
+	"net/http"
 	"unsafe"
 
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -15,6 +19,15 @@ import (
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
+
+type validatorDesc struct {
+	Data struct {
+		ValDesc []struct {
+			AvatarURL interface{} `json:"avatar_url"`
+			ValAddr   string      `json:"validator_address"`
+		} `json:"validator_description"`
+	} `json:"data"`
+}
 
 // ValidatorsLogic 获取验证者信息
 type ValidatorsLogic struct {
@@ -72,6 +85,11 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 			return nil, gzErr
 		}
 	}
+	aus, err := getAvatrURL()
+	if err != nil {
+		logx.Errorf("get url error:%v", err.Error())
+	}
+	logx.Info(aus)
 	for i, v := range validators {
 		token := v.Tokens.BigInt()
 		info := types.ValidatorInfo{}
@@ -95,6 +113,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 		info.UnbindingPeriod = l.svcCtx.Config.TitanClientConf.UnbindTime
 		dc, _ := decimal.NewFromString(v.Commission.Rate.String())
 		info.HandlingFees, _ = dc.Round(4).Mul(decimal.NewFromInt(100)).Float64()
+		info.Image = aus[v.OperatorAddress]
 		resp.List = append(resp.List, info)
 	}
 
@@ -126,4 +145,37 @@ func (l *ValidatorsLogic) getDelgatorVidatorNums(addr string) (int64, error) {
 	}
 
 	return int64(len(vs)), nil
+}
+
+// getAvatrURL 获取验证者节点头像
+func getAvatrURL() (map[string]string, error) {
+	var (
+		rp   validatorDesc
+		maps = make(map[string]string)
+	)
+	payload := []byte(`{"query":"query MyQuery {validator_description(distinct_on: validator_address) {avatar_url validator_address}}","variables":null,"operationName":"MyQuery"}`)
+
+	resp, err := http.Post("http://8.217.10.76:8080/v1/graphql", "application/json", bytes.NewReader(payload))
+	if err != nil {
+		return maps, fmt.Errorf("get description of validator error:%w", err)
+	}
+	defer resp.Body.Close()
+
+	payload, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return maps, fmt.Errorf("read body of get validator's description:%w", err)
+	}
+
+	err = json.Unmarshal(payload, &rp)
+	if err != nil {
+		return maps, fmt.Errorf("json unmarshal of get validator's description error:%w", err)
+	}
+
+	for _, v := range rp.Data.ValDesc {
+		if au, ok := v.AvatarURL.(string); ok && au != "" {
+			maps[v.ValAddr] = au
+		}
+	}
+
+	return maps, nil
 }

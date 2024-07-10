@@ -27,6 +27,7 @@ var enMaps = map[ErrCode]string{
 	ReDelegateTokenErrCode:       "Pledge transfer failed",
 	CancelUnDelegateTokenErrCode: "Cancellation and release of pledge failed",
 	WithdrawRewardsErrCode:       "Withdraw rewards error",
+	GetImageErrCode:              "Get image error",
 }
 var cnMaps = map[ErrCode]string{
 	UsernameErrCode:              "请输入正确的邮箱或钱包地址",
@@ -50,4 +51,5 @@ var cnMaps = map[ErrCode]string{
 	ReDelegateTokenErrCode:       "质押转移失败",
 	CancelUnDelegateTokenErrCode: "取消解除质押失败",
 	WithdrawRewardsErrCode:       "提取收益失败",
+	GetImageErrCode:              "获取图片失败",
 }
