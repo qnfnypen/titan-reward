@@ -53,10 +53,12 @@ func TestGetBalance(t *testing.T) {
 }
 
 func TestQueryValidators(t *testing.T) {
-	validators, err := titanCli.QueryValidators(context.Background(), 1, 10, "")
+	validators, err := titanCli.QueryValidators(context.Background(), 0, 0, "")
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	t.Log(len(validators))
 
 	for _, v := range validators {
 		t.Log(v.OperatorAddress)
@@ -184,7 +186,7 @@ func TestQueryDelegation(t *testing.T) {
 }
 
 func TestUnbondingDelegations(t *testing.T) {
-	addr := "titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e"
+	addr := "titan1qw2d028mrkrsg3uz5wtfzlnufc6rp42sy57fum"
 
 	resp, err := titanCli.UnbondingDelegations(context.Background(), addr, 0, 0)
 	if err != nil {
@@ -192,7 +194,9 @@ func TestUnbondingDelegations(t *testing.T) {
 	}
 
 	for _, v := range resp {
-		t.Log(v)
+		for _, vv := range v.Entries {
+			t.Log(vv.CompletionTime.Unix())
+		}
 	}
 }
 

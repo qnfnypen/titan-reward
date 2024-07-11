@@ -85,11 +85,10 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 			return nil, gzErr
 		}
 	}
-	aus, err := getAvatrURL()
-	if err != nil {
-		logx.Errorf("get url error:%v", err.Error())
-	}
-	logx.Info(aus)
+	// aus, err := getAvatrURL()
+	// if err != nil {
+	// 	logx.Errorf("get url error:%v", err.Error())
+	// }
 	for i, v := range validators {
 		token := v.Tokens.BigInt()
 		info := types.ValidatorInfo{}
@@ -113,7 +112,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 		info.UnbindingPeriod = l.svcCtx.Config.TitanClientConf.UnbindTime
 		dc, _ := decimal.NewFromString(v.Commission.Rate.String())
 		info.HandlingFees, _ = dc.Round(4).Mul(decimal.NewFromInt(100)).Float64()
-		info.Image = aus[v.OperatorAddress]
+		// info.Image = aus[v.OperatorAddress]
 		resp.List = append(resp.List, info)
 	}
 
