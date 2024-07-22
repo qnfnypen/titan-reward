@@ -244,3 +244,13 @@ func TestSyncRate(t *testing.T) {
 
 	t.Log(bff)
 }
+
+func TestGetValidatorUnbondingTime(t *testing.T) {
+	ut, err := titanCli.GetValidatorUnbondingTime(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(ut.Hours())
+	t.Log(ut.Seconds())
+}

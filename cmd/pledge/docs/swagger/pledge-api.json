@@ -325,6 +325,30 @@
             "type": "integer",
             "format": "int64",
             "default": "10"
+          },
+          {
+            "name": "sortby",
+            "description": " 排序方式 0-质押总量 1-质押手续费",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int8",
+            "enum": [
+              "0",
+              "1"
+            ]
+          },
+          {
+            "name": "sort",
+            "description": " 排序方式 0-倒序 1-正序",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int8",
+            "enum": [
+              "0",
+              "1"
+            ]
           }
         ],
         "tags": [
@@ -435,6 +459,24 @@
           "type": "integer",
           "format": "int64",
           "default": "10"
+        },
+        "sortby": {
+          "type": "integer",
+          "format": "int8",
+          "enum": [
+            "0",
+            "1"
+          ],
+          "description": " 排序方式 0-质押总量 1-质押手续费"
+        },
+        "sort": {
+          "type": "integer",
+          "format": "int8",
+          "enum": [
+            "0",
+            "1"
+          ],
+          "description": " 排序方式 0-倒序 1-正序"
         }
       },
       "title": "GetValidatorReq"
@@ -625,8 +667,7 @@
           "description": " 投票权"
         },
         "unbindingPeriod": {
-          "type": "number",
-          "format": "double",
+          "type": "string",
           "description": " 解绑期，最低的解绑到期时间戳"
         },
         "handlingFees": {

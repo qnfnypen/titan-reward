@@ -8,6 +8,8 @@ import (
 	"io"
 	"math/big"
 	"net/http"
+	"sort"
+	"strings"
 	"unsafe"
 
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -58,32 +60,41 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 	wallet := l.ctx.Value("wallet").(string)
 	gzErr.RespErr = myerror.GetMsg(myerror.GetValitorErrCode, lan)
 
-	// 获取所有的验证者的token
-	tokens, total, err := l.getAllTokens(req.Key)
+	// 获取质押解绑期
+	ut, err := l.svcCtx.TitanCli.GetValidatorUnbondingTime(l.ctx)
 	if err != nil {
 		gzErr.LogErr = merror.NewError(err).Error()
 		return nil, gzErr
 	}
-	var validators []staking.Validator
+
+	// 获取所有的验证者的token
+	tokens, total, validators, err := l.getAllTokensPage(req.SortBy, req.Sort, req.Key)
+	if err != nil {
+		gzErr.LogErr = merror.NewError(err).Error()
+		return nil, gzErr
+	}
+	// var validators []staking.Validator
 	switch req.Kind {
 	case 0:
 		resp.Total = total
-		validators, err = l.svcCtx.TitanCli.QueryValidators(l.ctx, req.Page, req.Size, req.Key)
-		if err != nil {
-			gzErr.LogErr = merror.NewError(fmt.Errorf("get all validators error:%w", err)).Error()
-			return nil, gzErr
-		}
+		validators = pageValidators(validators, req.Page, req.Size)
+		// validators, err = l.svcCtx.TitanCli.QueryValidators(l.ctx, req.Page, req.Size, req.Key)
+		// if err != nil {
+		// 	gzErr.LogErr = merror.NewError(fmt.Errorf("get all validators error:%w", err)).Error()
+		// 	return nil, gzErr
+		// }
 	case 1:
-		resp.Total, err = l.getDelgatorVidatorNums(wallet)
+		resp.Total, validators, err = l.getDelgatorVidatorNums(wallet, req.SortBy, req.Sort, req.Key)
 		if err != nil {
 			gzErr.LogErr = merror.NewError(err).Error()
 			return nil, gzErr
 		}
-		validators, err = l.svcCtx.TitanCli.QueryDelgatorVlidators(l.ctx, wallet, req.Page, req.Size)
-		if err != nil {
-			gzErr.LogErr = merror.NewError(fmt.Errorf("get delgator validators error:%w", err)).Error()
-			return nil, gzErr
-		}
+		validators = pageValidators(validators, req.Page, req.Size)
+		// validators, err = l.svcCtx.TitanCli.QueryDelgatorVlidators(l.ctx, wallet, req.Page, req.Size)
+		// if err != nil {
+		// 	gzErr.LogErr = merror.NewError(fmt.Errorf("get delgator validators error:%w", err)).Error()
+		// 	return nil, gzErr
+		// }
 	}
 	// aus, err := getAvatrURL()
 	// if err != nil {
@@ -94,14 +105,14 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 		info := types.ValidatorInfo{}
 		info.Name = v.Description.Moniker
 		info.Validator = v.OperatorAddress
-		if req.Kind == 1 {
-			del, err := l.svcCtx.TitanCli.QueryDelegation(l.ctx, wallet, v.OperatorAddress)
-			if err != nil {
-				gzErr.LogErr = merror.NewError(fmt.Errorf("get delgator's delegation error:%w", err)).Error()
-				return nil, gzErr
-			}
-			token = del.DelegationResponse.Balance.Amount.BigInt()
-		}
+		// if req.Kind == 1 {
+		// 	del, err := l.svcCtx.TitanCli.QueryDelegation(l.ctx, wallet, v.OperatorAddress)
+		// 	if err != nil {
+		// 		gzErr.LogErr = merror.NewError(fmt.Errorf("get delgator's delegation error:%w", err)).Error()
+		// 		return nil, gzErr
+		// 	}
+		// 	token = del.DelegationResponse.Balance.Amount.BigInt()
+		// }
 		info.ID = int64(int(req.Page*req.Size) + i + 1)
 		info.StakedTokens = getTTNT(token)
 		// rf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.DelegatorShares.BigInt()), new(big.Float).SetInt(v.Tokens.BigInt())).Float64()
@@ -109,7 +120,7 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 		info.Rate = comctx.getRate(l.ctx)
 		vpf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.Tokens.BigInt()), new(big.Float).SetInt(tokens)).Float64()
 		info.VotingPower, _ = decimal.NewFromFloat(vpf).Round(4).Mul(decimal.NewFromInt(100)).Float64()
-		info.UnbindingPeriod = l.svcCtx.Config.TitanClientConf.UnbindTime
+		info.UnbindingPeriod = converTimeDur(ut, lan)
 		dc, _ := decimal.NewFromString(v.Commission.Rate.String())
 		info.HandlingFees, _ = dc.Round(4).Mul(decimal.NewFromInt(100)).Float64()
 		// info.Image = aus[v.OperatorAddress]
@@ -137,13 +148,24 @@ func (l *ValidatorsLogic) getAllTokens(key string) (*big.Int, int64, error) {
 	return totalTokens, count, nil
 }
 
-func (l *ValidatorsLogic) getDelgatorVidatorNums(addr string) (int64, error) {
+func (l *ValidatorsLogic) getDelgatorVidatorNums(addr string, orderBy int8, order int8, key string) (int64, []staking.Validator, error) {
 	vs, err := l.svcCtx.TitanCli.QueryDelgatorVlidators(l.ctx, addr, 0, 0)
 	if err != nil {
-		return 0, fmt.Errorf("get total of delgator vidators error:%w", err)
+		return 0, nil, fmt.Errorf("get total of delgator vidators error:%w", err)
 	}
 
-	return int64(len(vs)), nil
+	for i, v := range vs {
+		del, err := l.svcCtx.TitanCli.QueryDelegation(l.ctx, addr, v.OperatorAddress)
+		if err != nil {
+			continue
+		}
+		vs[i].Tokens = del.DelegationResponse.Balance.Amount
+	}
+
+	vs = searchValidators(vs, key)
+	vs = orderValidators(vs, orderBy, order)
+
+	return int64(len(vs)), vs, nil
 }
 
 // getAvatrURL 获取验证者节点头像
@@ -177,4 +199,81 @@ func getAvatrURL() (map[string]string, error) {
 	}
 
 	return maps, nil
+}
+
+// getAllTokensPage 分页查询
+func (l *ValidatorsLogic) getAllTokensPage(orderBy, order int8, key string) (*big.Int, int64, []staking.Validator, error) {
+	var (
+		totalTokens = new(big.Int)
+		count       int64
+	)
+
+	validators, err := l.svcCtx.TitanCli.QueryValidators(l.ctx, 0, 0, "")
+	if err != nil {
+		return nil, 0, nil, fmt.Errorf("get all tokens of validators error:%w", err)
+	}
+	for _, v := range validators {
+		totalTokens = totalTokens.Add(totalTokens, v.Tokens.BigInt())
+		count++
+	}
+
+	validators = searchValidators(validators, key)
+	validators = orderValidators(validators, orderBy, order)
+	count = int64(len(validators))
+
+	return totalTokens, count, validators, nil
+}
+
+func orderValidators(validators []staking.Validator, orderBy, order int8) []staking.Validator {
+	sort.Slice(validators, func(i, j int) bool {
+		switch orderBy {
+		case 0:
+			if order == 0 {
+				return validators[i].Tokens.GT(validators[j].Tokens)
+			}
+			return validators[i].Tokens.LT(validators[j].Tokens)
+		case 1:
+			if order == 0 {
+				return validators[i].Commission.Rate.GT(validators[j].Commission.Rate)
+			}
+			return validators[i].Commission.Rate.LT(validators[j].Commission.Rate)
+		}
+
+		return false
+	})
+
+	return validators
+}
+
+func searchValidators(validators []staking.Validator, key string) []staking.Validator {
+	var vs []staking.Validator
+
+	key = strings.TrimSpace(key)
+
+	for _, v := range validators {
+		if key != "" {
+			if strings.Contains(v.Description.Moniker, key) || strings.Contains(v.OperatorAddress, key) {
+				vs = append(vs, v)
+			}
+		} else {
+			vs = append(vs, v)
+		}
+	}
+
+	return vs
+}
+
+func pageValidators(validators []staking.Validator, page, size uint64) []staking.Validator {
+	var zv = make([]staking.Validator, 0)
+	offset := (page - 1) * size
+
+	if offset > uint64(len(validators)) {
+		return zv
+	}
+
+	if uint64(len(validators))-offset <= size {
+		return validators[offset:]
+	}
+
+	return validators[offset : offset+size]
 }

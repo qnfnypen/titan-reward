@@ -5,6 +5,7 @@ import (
 	"fmt"
 	pmath "math"
 	"math/big"
+	"time"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -258,4 +259,16 @@ func (tc *TitanClient) GetMintInflation(ctx context.Context) (*big.Float, error)
 	bf = bf.Quo(bf, big.NewFloat(pmath.Pow10(18)))
 
 	return bf, nil
+}
+
+// GetValidatorUnbondingTime 获取验证者节点解除质押的时间
+func (tc *TitanClient) GetValidatorUnbondingTime(ctx context.Context) (time.Duration, error) {
+	queryClient := staking.NewQueryClient(tc.cli.Context())
+
+	resp, err := queryClient.Params(ctx, &staking.QueryParamsRequest{})
+	if err != nil {
+		return 0, fmt.Errorf("get unbonding time of validator error:%w", err)
+	}
+
+	return resp.Params.UnbondingTime, nil
 }

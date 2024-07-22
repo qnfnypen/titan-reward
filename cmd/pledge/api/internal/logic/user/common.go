@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"math/big"
 	"strconv"
@@ -56,4 +57,26 @@ func (s *sctx) convertTimestamp(ts int64) float64 {
 	}
 
 	return tnum
+}
+
+func converTimeDur(ut time.Duration, lan string) string {
+	uth := ut.Hours()
+
+	d := int(uth / 24)
+	h := math.Mod(uth, 24)
+
+	switch lan {
+	case "en":
+		if d > 0 {
+			return fmt.Sprintf("%dd%gh", d, h)
+		}
+		return fmt.Sprintf("%gh", h)
+	case "cn":
+		if d > 0 {
+			return fmt.Sprintf("%d天%g小时", d, h)
+		}
+		return fmt.Sprintf("%g小时", h)
+	}
+
+	return ut.String()
 }
