@@ -53,6 +53,7 @@ type UnbindingDelegateInfo struct {
 	Tokens          float64 `json:"tokens"`          // 数量
 	UnbindingPeriod float64 `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
 	Height          int64   `json:"height"`          // 高度
+	Status          bool    `json:"status"`          // true可用 false不可用
 }
 
 type UserInfo struct {
@@ -74,6 +75,7 @@ type ValidatorInfo struct {
 	VotingPower     float64 `json:"votingPower"`     // 投票权
 	UnbindingPeriod string  `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
 	HandlingFees    float64 `json:"handlingFees"`    // 质押手续费
+	Status          bool    `json:"status"`          // true可用 false不可用
 }
 
 type Validators struct {

@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/qnfnypen/titan-reward/cmd/pledge/api/internal/svc"
 )
@@ -36,7 +35,7 @@ func TestGetAllTokensPage(t *testing.T) {
 	l := NewValidatorsLogic(ctx, svcx)
 
 	// _, _, validators, err := l.getAllTokensPage(1, 1, "")
-	_, validators, err := l.getDelgatorVidatorNums("titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e", 0, 0, "")
+	_, validators, _, err := l.getDelgatorVidatorNums("titan13cuv557qzzfhj7v7dvhcj4dtduu03tmyqct69e", 0, 0, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,9 +50,4 @@ func TestGetAllTokensPage(t *testing.T) {
 	// }
 
 	// t.Log(validators)
-}
-
-func TestConverTimeDur(t *testing.T) {
-	ut, _ := time.ParseDuration("3600s")
-	t.Log(converTimeDur(ut, "en"))
 }

@@ -573,6 +573,11 @@
           "type": "integer",
           "format": "int64",
           "description": " 高度"
+        },
+        "status": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " true可用 false不可用"
         }
       },
       "title": "UnbindingDelegateInfo",
@@ -583,7 +588,8 @@
         "validator",
         "tokens",
         "unbindingPeriod",
-        "height"
+        "height",
+        "status"
       ]
     },
     "UserInfo": {
@@ -674,6 +680,11 @@
           "type": "number",
           "format": "double",
           "description": " 质押手续费"
+        },
+        "status": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": " true可用 false不可用"
         }
       },
       "title": "ValidatorInfo",
@@ -686,7 +697,8 @@
         "rate",
         "votingPower",
         "unbindingPeriod",
-        "handlingFees"
+        "handlingFees",
+        "status"
       ]
     },
     "Validators": {

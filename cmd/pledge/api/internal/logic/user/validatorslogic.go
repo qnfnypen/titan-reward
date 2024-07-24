@@ -50,8 +50,9 @@ func NewValidatorsLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Valida
 // Validators 实现 获取验证者信息
 func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Validators, err error) {
 	var (
-		gzErr  merror.GzErr
-		comctx = (*sctx)(unsafe.Pointer(l.svcCtx))
+		gzErr     merror.GzErr
+		comctx    = (*sctx)(unsafe.Pointer(l.svcCtx))
+		tokenMaps = make(map[string]*big.Int)
 	)
 	resp = new(types.Validators)
 	resp.List = make([]types.ValidatorInfo, 0)
@@ -78,51 +79,33 @@ func (l *ValidatorsLogic) Validators(req *types.GetValidatorReq) (resp *types.Va
 	case 0:
 		resp.Total = total
 		validators = pageValidators(validators, req.Page, req.Size)
-		// validators, err = l.svcCtx.TitanCli.QueryValidators(l.ctx, req.Page, req.Size, req.Key)
-		// if err != nil {
-		// 	gzErr.LogErr = merror.NewError(fmt.Errorf("get all validators error:%w", err)).Error()
-		// 	return nil, gzErr
-		// }
 	case 1:
-		resp.Total, validators, err = l.getDelgatorVidatorNums(wallet, req.SortBy, req.Sort, req.Key)
+		resp.Total, validators, tokenMaps, err = l.getDelgatorVidatorNums(wallet, req.SortBy, req.Sort, req.Key)
 		if err != nil {
 			gzErr.LogErr = merror.NewError(err).Error()
 			return nil, gzErr
 		}
 		validators = pageValidators(validators, req.Page, req.Size)
-		// validators, err = l.svcCtx.TitanCli.QueryDelgatorVlidators(l.ctx, wallet, req.Page, req.Size)
-		// if err != nil {
-		// 	gzErr.LogErr = merror.NewError(fmt.Errorf("get delgator validators error:%w", err)).Error()
-		// 	return nil, gzErr
-		// }
 	}
-	// aus, err := getAvatrURL()
-	// if err != nil {
-	// 	logx.Errorf("get url error:%v", err.Error())
-	// }
 	for i, v := range validators {
+		var vpf float64
 		token := v.Tokens.BigInt()
 		info := types.ValidatorInfo{}
 		info.Name = v.Description.Moniker
 		info.Validator = v.OperatorAddress
-		// if req.Kind == 1 {
-		// 	del, err := l.svcCtx.TitanCli.QueryDelegation(l.ctx, wallet, v.OperatorAddress)
-		// 	if err != nil {
-		// 		gzErr.LogErr = merror.NewError(fmt.Errorf("get delgator's delegation error:%w", err)).Error()
-		// 		return nil, gzErr
-		// 	}
-		// 	token = del.DelegationResponse.Balance.Amount.BigInt()
-		// }
+		if req.Kind == 1 {
+			vpf, _ = new(big.Float).Quo(new(big.Float).SetInt(tokenMaps[v.OperatorAddress]), new(big.Float).SetInt(tokens)).Float64()
+		} else {
+			vpf, _ = new(big.Float).Quo(new(big.Float).SetInt(v.Tokens.BigInt()), new(big.Float).SetInt(tokens)).Float64()
+		}
 		info.ID = int64(int(req.Page*req.Size) + i + 1)
 		info.StakedTokens = getTTNT(token)
-		// rf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.DelegatorShares.BigInt()), new(big.Float).SetInt(v.Tokens.BigInt())).Float64()
-		// info.Rate = rf
 		info.Rate = comctx.getRate(l.ctx)
-		vpf, _ := new(big.Float).Quo(new(big.Float).SetInt(v.Tokens.BigInt()), new(big.Float).SetInt(tokens)).Float64()
 		info.VotingPower, _ = decimal.NewFromFloat(vpf).Round(4).Mul(decimal.NewFromInt(100)).Float64()
 		info.UnbindingPeriod = converTimeDur(ut, lan)
 		dc, _ := decimal.NewFromString(v.Commission.Rate.String())
 		info.HandlingFees, _ = dc.Round(4).Mul(decimal.NewFromInt(100)).Float64()
+		info.Status = v.IsBonded()
 		// info.Image = aus[v.OperatorAddress]
 		resp.List = append(resp.List, info)
 	}
@@ -148,13 +131,15 @@ func (l *ValidatorsLogic) getAllTokens(key string) (*big.Int, int64, error) {
 	return totalTokens, count, nil
 }
 
-func (l *ValidatorsLogic) getDelgatorVidatorNums(addr string, orderBy int8, order int8, key string) (int64, []staking.Validator, error) {
+func (l *ValidatorsLogic) getDelgatorVidatorNums(addr string, orderBy int8, order int8, key string) (int64, []staking.Validator, map[string]*big.Int, error) {
+	var pTokens = make(map[string]*big.Int)
 	vs, err := l.svcCtx.TitanCli.QueryDelgatorVlidators(l.ctx, addr, 0, 0)
 	if err != nil {
-		return 0, nil, fmt.Errorf("get total of delgator vidators error:%w", err)
+		return 0, nil, nil, fmt.Errorf("get total of delgator vidators error:%w", err)
 	}
 
 	for i, v := range vs {
+		pTokens[v.OperatorAddress] = v.Tokens.BigInt()
 		del, err := l.svcCtx.TitanCli.QueryDelegation(l.ctx, addr, v.OperatorAddress)
 		if err != nil {
 			continue
@@ -162,10 +147,11 @@ func (l *ValidatorsLogic) getDelgatorVidatorNums(addr string, orderBy int8, orde
 		vs[i].Tokens = del.DelegationResponse.Balance.Amount
 	}
 
-	vs = searchValidators(vs, key)
+	vs, nvs := searchValidators(vs, key)
 	vs = orderValidators(vs, orderBy, order)
+	vs = append(vs, nvs...)
 
-	return int64(len(vs)), vs, nil
+	return int64(len(vs)), vs, pTokens, nil
 }
 
 // getAvatrURL 获取验证者节点头像
@@ -217,8 +203,9 @@ func (l *ValidatorsLogic) getAllTokensPage(orderBy, order int8, key string) (*bi
 		count++
 	}
 
-	validators = searchValidators(validators, key)
+	validators, nvs := searchValidators(validators, key)
 	validators = orderValidators(validators, orderBy, order)
+	validators = append(validators, nvs...)
 	count = int64(len(validators))
 
 	return totalTokens, count, validators, nil
@@ -245,22 +232,30 @@ func orderValidators(validators []staking.Validator, orderBy, order int8) []stak
 	return validators
 }
 
-func searchValidators(validators []staking.Validator, key string) []staking.Validator {
-	var vs []staking.Validator
+func searchValidators(validators []staking.Validator, key string) ([]staking.Validator, []staking.Validator) {
+	var vs, nvs []staking.Validator
 
 	key = strings.TrimSpace(key)
 
 	for _, v := range validators {
 		if key != "" {
 			if strings.Contains(v.Description.Moniker, key) || strings.Contains(v.OperatorAddress, key) {
-				vs = append(vs, v)
+				if v.IsBonded() {
+					vs = append(vs, v)
+				} else {
+					nvs = append(nvs, v)
+				}
 			}
 		} else {
-			vs = append(vs, v)
+			if v.IsBonded() {
+				vs = append(vs, v)
+			} else {
+				nvs = append(nvs, v)
+			}
 		}
 	}
 
-	return vs
+	return vs, nvs
 }
 
 func pageValidators(validators []staking.Validator, page, size uint64) []staking.Validator {
