@@ -52,6 +52,7 @@ type UnbindingDelegateInfo struct {
 	Validator       string  `json:"validator"`       // 验证者
 	Tokens          float64 `json:"tokens"`          // 数量
 	UnbindingPeriod float64 `json:"unbindingPeriod"` // 解绑期，最低的解绑到期时间戳
+	Unit            string  `json:"unit"`            // 单位
 	Height          int64   `json:"height"`          // 高度
 	Status          bool    `json:"status"`          // true可用 false不可用
 }

@@ -60,7 +60,7 @@ func (l *GetUnbindingDelegateLogic) GetUnbindingDelegate() (resp []types.Unbindi
 			}
 			info.Height = vv.CreationHeight
 			info.Tokens = getTTNT(vv.Balance.BigInt())
-			info.UnbindingPeriod = comctx.convertTimestamp(vv.CompletionTime.Unix())
+			info.UnbindingPeriod, info.Unit = comctx.convertTimestamp(vv.CompletionTime.Unix(), lan)
 			info.Status = vinfo.IsBonded()
 
 			resp = append(resp, info)

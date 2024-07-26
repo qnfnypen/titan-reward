@@ -569,6 +569,10 @@
           "format": "double",
           "description": " 解绑期，最低的解绑到期时间戳"
         },
+        "unit": {
+          "type": "string",
+          "description": " 单位"
+        },
         "height": {
           "type": "integer",
           "format": "int64",
@@ -588,6 +592,7 @@
         "validator",
         "tokens",
         "unbindingPeriod",
+        "unit",
         "height",
         "status"
       ]

@@ -44,19 +44,30 @@ func (s *sctx) getRate(ctx context.Context) float64 {
 }
 
 // convertTimestamp 将时间戳转换为剩余天数
-func (s *sctx) convertTimestamp(ts int64) float64 {
+func (s *sctx) convertTimestamp(ts int64, lan string) (float64, string) {
 	tnum := s.Config.TitanClientConf.UnbindTime
 
-	if ts == 0 {
-		return tnum
+	if ts != 0 {
+		tn := time.Now().Unix()
+		if ts > tn {
+			tnum, _ = decimal.NewFromInt(ts - tn).Div(decimal.NewFromInt(3600)).Round(1).Float64()
+		}
 	}
 
-	tn := time.Now().Unix()
-	if ts > tn {
-		tnum, _ = decimal.NewFromInt(ts - tn).Div(decimal.NewFromInt(86400)).Round(1).Float64()
+	switch lan {
+	case "en":
+		if tnum >= 24 {
+			tnum, _ = decimal.NewFromFloat(tnum).Div(decimal.NewFromInt(24)).Round(1).Float64()
+			return tnum, "DAY"
+		}
+		return tnum, "HOUR"
+	default:
+		if tnum >= 24 {
+			tnum, _ = decimal.NewFromFloat(tnum).Div(decimal.NewFromInt(24)).Round(1).Float64()
+			return tnum, "天"
+		}
+		return tnum, "小时"
 	}
-
-	return tnum
 }
 
 func converTimeDur(ut time.Duration, lan string) string {
