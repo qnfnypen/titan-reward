@@ -3,6 +3,7 @@ package opchain
 import (
 	"context"
 	"fmt"
+	"log"
 	pmath "math"
 	"math/big"
 	"time"
@@ -96,7 +97,7 @@ func (tc *TitanClient) GetBalance(ctx context.Context, addr string) (sdk.Coin, e
 
 	in := &bank.QueryAllBalancesRequest{
 		Address:      addr,
-		ResolveDenom: true,
+		ResolveDenom: false,
 	}
 	queryResp, err := queryClient.AllBalances(ctx, in)
 	if err != nil {
@@ -104,6 +105,7 @@ func (tc *TitanClient) GetBalance(ctx context.Context, addr string) (sdk.Coin, e
 	}
 
 	for _, v := range queryResp.GetBalances() {
+		log.Println(v, v.Denom)
 		balance = balance.Add(v)
 	}
 	return balance, nil

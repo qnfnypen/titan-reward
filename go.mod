@@ -12,9 +12,11 @@ require (
 	github.com/ignite/cli/v28 v28.4.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/qnfnypen/gzocomm v0.0.0-20240417021844-e60a503e93a2
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/rs/xid v1.5.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/zeromicro/go-zero v1.6.5
+	golang.org/x/crypto v0.23.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
 
@@ -143,7 +145,6 @@ require (
 	github.com/prometheus/procfs v0.13.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/redis/go-redis/v9 v9.4.0 // indirect
-	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/cors v1.10.1 // indirect
 	github.com/rs/zerolog v1.32.0 // indirect
@@ -181,7 +182,6 @@ require (
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/automaxprocs v1.5.3 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
 	golang.org/x/image v0.0.0-20220617043117-41969df76e82 // indirect
 	golang.org/x/mod v0.17.0 // indirect
