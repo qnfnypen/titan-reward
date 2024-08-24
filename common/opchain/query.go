@@ -6,6 +6,7 @@ import (
 	"log"
 	pmath "math"
 	"math/big"
+	"sync"
 	"time"
 
 	"cosmossdk.io/math"
@@ -15,6 +16,7 @@ import (
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	mint "github.com/cosmos/cosmos-sdk/x/mint/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 // GetDelegations 获取所有质押token的数量
@@ -132,24 +134,66 @@ func (tc *TitanClient) GetTotalBalance(ctx context.Context) (sdk.Coin, error) {
 
 // QueryValidators 查询当前的验证者
 func (tc *TitanClient) QueryValidators(ctx context.Context, page, size uint64, key string) ([]staking.Validator, error) {
-	queryClient := staking.NewQueryClient(tc.cli.Context())
+	var (
+		mu         = new(sync.Mutex)
+		wg         = new(sync.WaitGroup)
+		validators = make([]staking.Validator, 0)
+	)
 
 	in := &staking.QueryValidatorsRequest{
 		Pagination: new(query.PageRequest),
 	}
-	if key != "" {
-		in.Pagination.Key = []byte(key)
-	}
+
+	queryClient := staking.NewQueryClient(tc.cli.Context())
+
 	if size != 0 && page > 0 {
 		in.Pagination.Limit = size
 		in.Pagination.Offset = (page - 1) * size
-	}
-	resp, err := queryClient.Validators(ctx, in)
-	if err != nil {
-		return nil, fmt.Errorf("get validators error:%w", err)
+		resp, err := queryClient.Validators(ctx, in)
+		if err != nil {
+			return nil, fmt.Errorf("get validators error:%w", err)
+		}
+		validators = resp.GetValidators()
+	} else {
+		// 首次先获取总数，便于分页处理
+		resp, err := queryClient.Validators(ctx, in)
+		if err != nil {
+			return nil, fmt.Errorf("get validators error:%w", err)
+		}
+		validators = resp.GetValidators()
+		if resp.Pagination.NextKey == nil {
+			return validators, nil
+		}
+		size := len(validators)
+		total := (int64(resp.Pagination.Total) - int64(size)) / int64(size)
+		if (int64(resp.Pagination.Total)-int64(size))%int64(size) > 0 {
+			total++
+		}
+		for i := 2; i < int(total)+2; i++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+
+				in := &staking.QueryValidatorsRequest{
+					Pagination: &query.PageRequest{
+						Limit:  uint64(size),
+						Offset: (uint64(i) - 1) * uint64(size),
+					},
+				}
+				resp, err := queryClient.Validators(ctx, in)
+				if err != nil {
+					logx.Error(fmt.Errorf("get validators error:%w", err))
+					return
+				}
+				mu.Lock()
+				defer mu.Unlock()
+				validators = append(validators, resp.GetValidators()...)
+			}()
+		}
+		wg.Wait()
 	}
 
-	return resp.GetValidators(), nil
+	return validators, nil
 }
 
 // QueryValidator 查询验证者信息
